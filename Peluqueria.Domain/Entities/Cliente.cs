@@ -19,5 +19,7 @@ namespace Peluqueria.Domain.Entities
         public bool Activo { get; set; } = true;
 
         public string? Observaciones { get; set; }
+
+        public ICollection<Turno> Turnos { get; set; } = new List<Turno>();
     }
 }

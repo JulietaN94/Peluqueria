@@ -21,5 +21,7 @@ namespace Peluqueria.Domain.Entities
         public string? ImagenUrl { get; set; }
 
         public bool Activo { get; set; } = true;
+
+        public ICollection<Turno> Turnos { get; set; } = new List<Turno>();
     }
 }
