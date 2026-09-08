@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Peluqueria.Application/Peluqueria.Application.csproj" />
+  <Project Path="Peluqueria.Domain/Peluqueria.Domain.csproj" />
+  <Project Path="Peluqueria.Infrastructure/Peluqueria.Infrastructure.csproj" />
+  <Project Path="Peluqueria.Web/Peluqueria.Web.csproj" />
+</Solution>
