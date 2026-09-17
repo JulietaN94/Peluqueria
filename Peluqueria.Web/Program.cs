@@ -1,6 +1,9 @@
 using Peluqueria.Web.Components;
 using Microsoft.EntityFrameworkCore;
 using Peluqueria.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
+using Peluqueria.Infrastructure.Identity;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,12 @@ var connectionString =
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services
+    .AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager();
 
 var app = builder.Build();
 
