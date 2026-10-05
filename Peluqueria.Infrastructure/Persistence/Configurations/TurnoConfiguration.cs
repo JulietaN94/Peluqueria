@@ -43,8 +43,7 @@ public class TurnoConfiguration : IEntityTypeConfiguration<Turno>
             .HasPrecision(18, 2);
 
         builder.Property(t => t.Estado)
-            .IsRequired()
-            .HasDefaultValue(EstadoTurno.Pendiente);
+            .IsRequired();
 
         builder.Property(t => t.CodigoReserva)
             .IsRequired()
