@@ -14,229 +14,112 @@ namespace Peluqueria.Infrastructure.Persistence;
 public static class DatabaseSeeder
 {
     public static async Task SeedAsync(
-        ApplicationDbContext context,
-        UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+       ApplicationDbContext context,
+       UserManager<ApplicationUser> userManager,
+       RoleManager<IdentityRole> roleManager,
+       string? administratorPassword)
     {
         await context.Database.MigrateAsync();
-
-        await SeedIdentityAsync(userManager, roleManager);
+        await SeedIdentityAsync(userManager, roleManager, administratorPassword);
         await SeedBusinessDataAsync(context);
     }
 
     private static async Task SeedIdentityAsync(
         UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+        RoleManager<IdentityRole> roleManager,
+        string? administratorPassword)
     {
-        const string rolAdministrador = "Administrador";
-        const string emailAdministrador = "admin@peluqueria.local";
+        const string roleName = "Administrador";
+        const string email = "admin@peluqueria.local";
 
-        if (!await roleManager.RoleExistsAsync(rolAdministrador))
+        if (!await roleManager.RoleExistsAsync(roleName))
         {
-            var roleResult = await roleManager.CreateAsync(
-                new IdentityRole(rolAdministrador));
-
-            if (!roleResult.Succeeded)
-            {
-                throw new InvalidOperationException(
-                    $"No se pudo crear el rol '{rolAdministrador}'.");
-            }
+            var roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
+            EnsureSucceeded(roleResult, "crear el rol Administrador");
         }
 
-        var usuario = await userManager.FindByEmailAsync(
-            emailAdministrador);
-
-        if (usuario is null)
+        var admin = await userManager.FindByEmailAsync(email);
+        if (admin is null)
         {
-            usuario = new ApplicationUser
+            if (string.IsNullOrWhiteSpace(administratorPassword))
             {
-                UserName = emailAdministrador,
-                Email = emailAdministrador,
+                throw new InvalidOperationException(
+                    "Falta configurar Seed:AdminPassword en User Secrets. " +
+                    "Es necesario para crear el administrador inicial.");
+            }
+
+            admin = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
                 EmailConfirmed = true
             };
 
-            const string password = "Admin123!";
-
-            var userResult = await userManager.CreateAsync(
-                usuario,
-                password);
-
-            if (!userResult.Succeeded)
-            {
-                var errores = string.Join(
-                    ", ",
-                    userResult.Errors.Select(e => e.Description));
-
-                throw new InvalidOperationException(
-                    $"No se pudo crear el usuario administrador: {errores}");
-            }
+            var userResult = await userManager.CreateAsync(admin, administratorPassword);
+            EnsureSucceeded(userResult, "crear el usuario administrador");
         }
 
-        if (!await userManager.IsInRoleAsync(
-                usuario,
-                rolAdministrador))
+        if (!await userManager.IsInRoleAsync(admin, roleName))
         {
-            var roleResult = await userManager.AddToRoleAsync(
-                usuario,
-                rolAdministrador);
-
-            if (!roleResult.Succeeded)
-            {
-                throw new InvalidOperationException(
-                    "No se pudo asignar el rol Administrador al usuario.");
-            }
+            var addRoleResult = await userManager.AddToRoleAsync(admin, roleName);
+            EnsureSucceeded(addRoleResult, "asignar el rol Administrador");
         }
     }
 
-    private static async Task SeedBusinessDataAsync(
-        ApplicationDbContext context)
+    private static void EnsureSucceeded(IdentityResult result, string action)
+    {
+        if (!result.Succeeded)
+        {
+            string details = string.Join(" | ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Error al {action}: {details}");
+        }
+    }
+
+    private static async Task SeedBusinessDataAsync(ApplicationDbContext context)
     {
         if (!await context.Profesionales.AnyAsync())
         {
             context.Profesionales.AddRange(
-                new Profesional
-                {
-                    NombreCompleto = "María González",
-                    Telefono = "11-4000-1001",
-                    Especialidad = "Corte y peinado",
-                    Activo = true
-                },
-                new Profesional
-                {
-                    NombreCompleto = "Juan Pérez",
-                    Telefono = "11-4000-1002",
-                    Especialidad = "Coloración",
-                    Activo = true
-                },
-                new Profesional
-                {
-                    NombreCompleto = "Laura Rodríguez",
-                    Telefono = "11-4000-1003",
-                    Especialidad = "Corte y color",
-                    Activo = true
-                });
+                new Profesional { NombreCompleto = "María González", Telefono = "11-4000-1001", Especialidad = "Corte y peinado", Activo = true },
+                new Profesional { NombreCompleto = "Juan Pérez", Telefono = "11-4000-1002", Especialidad = "Coloración", Activo = true },
+                new Profesional { NombreCompleto = "Laura Rodríguez", Telefono = "11-4000-1003", Especialidad = "Corte y color", Activo = true });
         }
 
         if (!await context.Servicios.AnyAsync())
         {
             context.Servicios.AddRange(
-                new Servicio
-                {
-                    Nombre = "Corte",
-                    Descripcion = "Corte de cabello.",
-                    Precio = 10000m,
-                    DuracionMinutos = 30,
-                    Activo = true
-                },
-                new Servicio
-                {
-                    Nombre = "Corte + Brushing",
-                    Descripcion = "Corte de cabello y brushing.",
-                    Precio = 15000m,
-                    DuracionMinutos = 60,
-                    Activo = true
-                },
-                new Servicio
-                {
-                    Nombre = "Brushing",
-                    Descripcion = "Brushing de cabello.",
-                    Precio = 9000m,
-                    DuracionMinutos = 45,
-                    Activo = true
-                },
-                new Servicio
-                {
-                    Nombre = "Coloración",
-                    Descripcion = "Servicio de coloración.",
-                    Precio = 30000m,
-                    DuracionMinutos = 120,
-                    Activo = true
-                },
-                new Servicio
-                {
-                    Nombre = "Mechas",
-                    Descripcion = "Servicio de mechas.",
-                    Precio = 35000m,
-                    DuracionMinutos = 150,
-                    Activo = true
-                },
-                new Servicio
-                {
-                    Nombre = "Peinado",
-                    Descripcion = "Peinado para eventos y ocasiones especiales.",
-                    Precio = 12000m,
-                    DuracionMinutos = 60,
-                    Activo = true
-                },
-                new Servicio
-                {
-                    Nombre = "Alisado",
-                    Descripcion = "Servicio de alisado.",
-                    Precio = 28000m,
-                    DuracionMinutos = 120,
-                    Activo = true
-                });
+                new Servicio { Nombre = "Corte", Descripcion = "Corte de cabello.", Precio = 10000m, DuracionMinutos = 30, Activo = true },
+                new Servicio { Nombre = "Corte + Brushing", Descripcion = "Corte de cabello y brushing.", Precio = 15000m, DuracionMinutos = 60, Activo = true },
+                new Servicio { Nombre = "Brushing", Descripcion = "Brushing de cabello.", Precio = 9000m, DuracionMinutos = 45, Activo = true },
+                new Servicio { Nombre = "Coloración", Descripcion = "Servicio de coloración.", Precio = 30000m, DuracionMinutos = 120, Activo = true },
+                new Servicio { Nombre = "Mechas", Descripcion = "Servicio de mechas.", Precio = 35000m, DuracionMinutos = 150, Activo = true },
+                new Servicio { Nombre = "Peinado", Descripcion = "Peinado para eventos y ocasiones especiales.", Precio = 12000m, DuracionMinutos = 60, Activo = true },
+                new Servicio { Nombre = "Alisado", Descripcion = "Servicio de alisado.", Precio = 28000m, DuracionMinutos = 120, Activo = true });
         }
 
         if (!await context.HorariosAtencion.AnyAsync())
         {
-            context.HorariosAtencion.AddRange(
-                CrearHorario(
-                    DiaSemana.Lunes,
-                    new TimeOnly(9, 0),
-                    new TimeOnly(19, 0),
-                    new TimeOnly(13, 0),
-                    new TimeOnly(15, 0)),
+            foreach (var day in new[] {
+                DiaSemana.Lunes, DiaSemana.Martes, DiaSemana.Miercoles,
+                DiaSemana.Jueves, DiaSemana.Viernes })
+            {
+                context.HorariosAtencion.Add(CrearHorario(day, new TimeOnly(9, 0),
+                    new TimeOnly(19, 0), new TimeOnly(13, 0), new TimeOnly(15, 0)));
+            }
 
-                CrearHorario(
-                    DiaSemana.Martes,
-                    new TimeOnly(9, 0),
-                    new TimeOnly(19, 0),
-                    new TimeOnly(13, 0),
-                    new TimeOnly(15, 0)),
-
-                CrearHorario(
-                    DiaSemana.Miercoles,
-                    new TimeOnly(9, 0),
-                    new TimeOnly(19, 0),
-                    new TimeOnly(13, 0),
-                    new TimeOnly(15, 0)),
-
-                CrearHorario(
-                    DiaSemana.Jueves,
-                    new TimeOnly(9, 0),
-                    new TimeOnly(19, 0),
-                    new TimeOnly(13, 0),
-                    new TimeOnly(15, 0)),
-
-                CrearHorario(
-                    DiaSemana.Viernes,
-                    new TimeOnly(9, 0),
-                    new TimeOnly(19, 0),
-                    new TimeOnly(13, 0),
-                    new TimeOnly(15, 0)),
-
-                CrearHorario(
-                    DiaSemana.Sabado,
-                    new TimeOnly(9, 0),
-                    new TimeOnly(13, 0)),
-
-                CrearHorario(
-                    DiaSemana.Domingo,
-                    new TimeOnly(0, 0),
-                    new TimeOnly(0, 0),
-                    activo: false));
+            context.HorariosAtencion.Add(CrearHorario(DiaSemana.Sabado,
+                new TimeOnly(9, 0), new TimeOnly(13, 0)));
+            // Un horario inactivo también debe cumplir Apertura < Cierre.
+            context.HorariosAtencion.Add(CrearHorario(DiaSemana.Domingo,
+                new TimeOnly(9, 0), new TimeOnly(13, 0), activo: false));
         }
 
         await context.SaveChangesAsync();
     }
 
     private static HorarioAtencion CrearHorario(
-        DiaSemana dia,
-        TimeOnly apertura,
-        TimeOnly cierre,
-        TimeOnly? inicioDescanso = null,
-        TimeOnly? finDescanso = null,
+        DiaSemana dia, TimeOnly apertura, TimeOnly cierre,
+        TimeOnly? inicioDescanso = null, TimeOnly? finDescanso = null,
         bool activo = true)
     {
         return new HorarioAtencion
