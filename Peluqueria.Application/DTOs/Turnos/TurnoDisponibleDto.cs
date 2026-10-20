@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Peluqueria.Application.DTOs.Turnos
 {
-    internal class TurnoDisponibleDto
+    public class TurnoDisponibleDto
     {
+        public int ProfesionalId { get; set; }
+        public string ProfesionalNombre { get; set; } = string.Empty;
+        public DateTime FechaHoraInicio { get; set; }
+        public DateTime FechaHoraFin { get; set; }
     }
 }
