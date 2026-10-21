@@ -66,6 +66,8 @@ builder.Services.AddScoped<IClienteService, ClienteService>();
 // Gestión de profesionales
 builder.Services.AddScoped<IProfesionalService, ProfesionalService>();
 
+builder.Services.AddScoped<IServicioService, ServicioService>();
+
 // ==========================================
 // 6. REPOSITORIOS DE INFRASTRUCTURE
 // ==========================================
@@ -76,11 +78,37 @@ builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 // Persistencia de profesionales
 builder.Services.AddScoped<IProfesionalRepository, ProfesionalRepository>();
 
+builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
+
 // ==========================================
 // 7. CONSTRUCCIÓN DE LA APLICACIÓN
 // ==========================================
 
 var app = builder.Build();
+
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var servicioService = scope.ServiceProvider
+        .GetRequiredService<IServicioService>();
+
+    var servicios = await servicioService
+        .ListarActivosAsync();
+
+    Console.WriteLine(
+        $"Servicios activos: {servicios.Count}");
+
+    foreach (var servicio in servicios)
+    {
+        Console.WriteLine(
+            $"{servicio.Nombre} - " +
+            $"Precio: ${servicio.Precio} - " +
+            $"Duración: {servicio.DuracionMinutos} minutos");
+    }
+}
+
 
 
 // ==========================================
