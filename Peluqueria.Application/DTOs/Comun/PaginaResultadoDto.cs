@@ -8,11 +8,25 @@ namespace Peluqueria.Application.DTOs.Comun
 {
     public class PaginaResultadoDto<T>
     {
-        public IReadOnlyList<T> Elementos { get; set; } = Array.Empty<T>();
+        public List<T> Items { get; set; } = new();
+
         public int TotalRegistros { get; set; }
-        public int Pagina { get; set; }
-        public int TamanoPagina { get; set; }
-        public int TotalPaginas => TamanoPagina > 0
-            ? (int)Math.Ceiling((double)TotalRegistros / TamanoPagina) : 0;
+
+        public int PaginaActual { get; set; } = 1;
+
+        public int TamanoPagina { get; set; } = 10;
+
+        public int TotalPaginas
+        {
+            get
+            {
+                if (TamanoPagina <= 0)
+                    return 0;
+
+                return (int)Math.Ceiling(
+                    (double)TotalRegistros / TamanoPagina);
+            }
+        }
     }
+
 }
