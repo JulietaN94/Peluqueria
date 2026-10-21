@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Peluqueria.Application.Interfaces
 {
-    internal class IReservaCodeGenerator
+    public interface IReservaCodeGenerator
     {
+        string GenerarCodigo();
     }
 }

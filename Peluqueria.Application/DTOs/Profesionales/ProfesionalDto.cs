@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Peluqueria.Application.DTOs.Profesionales
 {
-    internal class ProfesionalDto
+    public class ProfesionalDto
     {
         public int ProfesionalId { get; set; }
         public string NombreCompleto { get; set; } = string.Empty;
