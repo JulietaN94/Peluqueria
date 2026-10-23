@@ -71,6 +71,11 @@ builder.Services.AddScoped<IServicioService, ServicioService>();
 // Gestión de horarios
 builder.Services.AddScoped<IHorarioService, HorarioService>();
 
+// Generación de códigos de reserva
+builder.Services.AddSingleton<
+    IReservaCodeGenerator,
+    ReservaCodeGenerator>();
+
 // ==========================================
 // 6. REPOSITORIOS DE INFRASTRUCTURE
 // ==========================================
@@ -91,6 +96,35 @@ builder.Services.AddScoped<IHorarioRepository, HorarioRepository>();
 // ==========================================
 
 var app = builder.Build();
+
+
+if (app.Environment.IsDevelopment())
+{
+    var generador = app.Services
+        .GetRequiredService<IReservaCodeGenerator>();
+
+    var codigos = new HashSet<string>();
+
+    for (int i = 0; i < 10; i++)
+    {
+        string codigo = generador.GenerarCodigo();
+
+        Console.WriteLine(
+            $"Código generado: {codigo}");
+
+        if (!codigo.StartsWith("PEL-") ||
+            codigo.Length != 16 ||
+            !codigos.Add(codigo))
+        {
+            throw new InvalidOperationException(
+                "Error al validar el código de reserva.");
+        }
+    }
+
+    Console.WriteLine(
+        "Prueba de códigos completada correctamente.");
+}
+
 
 
 // ==========================================
