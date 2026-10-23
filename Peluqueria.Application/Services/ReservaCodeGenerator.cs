@@ -11,7 +11,7 @@ namespace Peluqueria.Application.Services
     public sealed class ReservaCodeGenerator : IReservaCodeGenerator
     {
         private const string Prefijo = "PEL-";
-        private const string Caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        private const string Caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Excluye caracteres confusos como I, O, 0, 1 para mejorar la usabilidad
         private const int LongitudAleatoria = 12;
 
         public string GenerarCodigo()
