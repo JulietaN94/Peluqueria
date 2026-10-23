@@ -79,6 +79,9 @@ builder.Services.AddSingleton<
 // Disponibilidad de turnos
 builder.Services.AddScoped<DisponibilidadService>();
 
+// Creación de reservas
+builder.Services.AddScoped<ReservaService>();
+
 // ==========================================
 // 6. REPOSITORIOS DE INFRASTRUCTURE
 // ==========================================
@@ -98,6 +101,9 @@ builder.Services.AddScoped<IHorarioRepository, HorarioRepository>();
 builder.Services.AddScoped<
     IDisponibilidadRepository,
     DisponibilidadRepository>();
+
+// Persistencia de reservas
+builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 
 // ==========================================
 // 7. CONSTRUCCIÓN DE LA APLICACIÓN  (donde testeo)
