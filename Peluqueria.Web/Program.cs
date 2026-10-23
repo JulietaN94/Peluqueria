@@ -68,6 +68,9 @@ builder.Services.AddScoped<IProfesionalService, ProfesionalService>();
 
 builder.Services.AddScoped<IServicioService, ServicioService>();
 
+// Gestión de horarios
+builder.Services.AddScoped<IHorarioService, HorarioService>();
+
 // ==========================================
 // 6. REPOSITORIOS DE INFRASTRUCTURE
 // ==========================================
@@ -80,8 +83,11 @@ builder.Services.AddScoped<IProfesionalRepository, ProfesionalRepository>();
 
 builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
 
+// Persistencia de horarios
+builder.Services.AddScoped<IHorarioRepository, HorarioRepository>();
+
 // ==========================================
-// 7. CONSTRUCCIÓN DE LA APLICACIÓN
+// 7. CONSTRUCCIÓN DE LA APLICACIÓN  (donde testeo)
 // ==========================================
 
 var app = builder.Build();
