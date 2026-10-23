@@ -87,30 +87,6 @@ builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
 var app = builder.Build();
 
 
-if (app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-
-    var servicioService = scope.ServiceProvider
-        .GetRequiredService<IServicioService>();
-
-    var servicios = await servicioService
-        .ListarActivosAsync();
-
-    Console.WriteLine(
-        $"Servicios activos: {servicios.Count}");
-
-    foreach (var servicio in servicios)
-    {
-        Console.WriteLine(
-            $"{servicio.Nombre} - " +
-            $"Precio: ${servicio.Precio} - " +
-            $"Duración: {servicio.DuracionMinutos} minutos");
-    }
-}
-
-
-
 // ==========================================
 // 8. MIGRACIONES Y DATOS INICIALES
 // ==========================================
