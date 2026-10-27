@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Peluqueria.Infrastructure\Peluqueria.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\galeria\" />
+  </ItemGroup>
+
 </Project>
