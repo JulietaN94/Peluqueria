@@ -1,9 +1,0 @@
-ONDA Peluquería — Fase 5, Bloque 1 (5.1–5.4)
-
-1. Cambiar a feature/frontend, derivada de feature/application.
-2. Copiar la carpeta Peluqueria.Web del ZIP SOBRE la carpeta Peluqueria.Web de tu solución. NO reemplazar Program.cs ni .sln.
-3. En Visual Studio recompilar y ejecutar https.
-4. Abrir / y comprobar menú responsive, logo, servicios desde SQL Server, contacto y diseño.
-5. El botón Reservar lleva a una sección informativa, NO guarda turnos todavía.
-6. Fotos, galería, opiniones, reserva y administración se completan en fases posteriores.
-7. Este ZIP no modifica Domain, Application, Infrastructure ni base de datos.
