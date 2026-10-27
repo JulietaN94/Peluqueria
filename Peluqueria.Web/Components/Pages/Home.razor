@@ -1,8 +1,10 @@
 @page "/"
 @using Peluqueria.Application.Interfaces
 @using Peluqueria.Application.DTOs.Servicios
+@using Peluqueria.Application.DTOs.Profesionales
 @using Peluqueria.Web.Components.Shared
 @inject IServicioService ServicioService
+@inject IProfesionalService ProfesionalService
 
 <PageTitle>ONDA Peluquería | Tu estilo, tu esencia</PageTitle>
 
@@ -11,8 +13,7 @@
         <span class="eyebrow">BIENVENIDA A ONDA PELUQUERÍA</span>
         <h1>Tu estilo,<br /><em>tu esencia.</em></h1>
         <p>Un espacio para renovarte, conectar con vos y disfrutar del cuidado que merecés.</p>
-        <a class="onda-button" href="#reservas">Reservar mi turno <span aria-hidden="true">↗</span></a>
-        <span class="small-note">Un momento para vos, a tu manera.</span>
+        <a class="onda-button" href="#reservas">Reservar turno <span aria-hidden="true">↗</span></a>
     </div>
     <div class="hero-art"><div class="hero-glow"><img src="/images/logo-onda.jpeg" alt="Logo original de ONDA Peluquería" /></div><span class="hero-label">CUIDADO &amp; ESTILO</span></div>
 </section>
@@ -20,8 +21,8 @@
 <section id="servicios" class="section services-section">
     <div class="onda-container">
         <div class="section-head"><div><span class="eyebrow">LO QUE HACEMOS</span><h2>Servicios pensados <em>para vos</em></h2></div><p>Tu próximo cambio empieza con un buen momento.</p></div>
-        @if (cargando) { <p role="status">Cargando servicios...</p> }
-        else if (error is not null) { <p class="onda-notice" role="alert">@error</p> }
+        @if (cargandoServicios) { <p role="status">Cargando servicios...</p> }
+        else if (errorServicios is not null) { <p class="onda-notice" role="alert">@errorServicios</p> }
         else if (servicios.Count == 0) { <p>No hay servicios activos para mostrar.</p> }
         else { <div class="services-grid">@foreach (var (servicio, indice) in servicios.Select((s,i)=>(s,i))) { <ServiceCard Numero="@(indice + 1)" Nombre="@servicio.Nombre" Descripcion="@servicio.Descripcion" Precio="@servicio.Precio" DuracionMinutos="@servicio.DuracionMinutos" /> }</div> }
     </div>
@@ -29,9 +30,72 @@
 
 <section id="nosotros" class="section about-section"><div class="onda-container about-grid"><div class="decorative-quote">“</div><div><span class="eyebrow">NUESTRA FILOSOFÍA</span><h2>La belleza está en <em>ser vos.</em></h2><p>En ONDA creemos en el cuidado personal como un momento de bienestar. Queremos que te sientas cómoda, escuchada y acompañada en cada visita.</p><p class="demo-note">Presentación de demostración para el proyecto académico.</p></div></div></section>
 
-<section id="equipo" class="section"><div class="onda-container"><span class="eyebrow">EL EQUIPO</span><h2>Manos que <em>inspiran confianza</em></h2><div class="team-grid"><article><div class="avatar">MG</div><h3>María González</h3><p>Profesional del salón</p></article><article><div class="avatar">JP</div><h3>Juan Pérez</h3><p>Profesional del salón</p></article><article><div class="avatar">LR</div><h3>Laura Rodríguez</h3><p>Profesional del salón</p></article></div><p class="demo-note">Nombres de demostración cargados inicialmente en la base de datos.</p></div></section>
+<section id="equipo" class="section team-section">
+    <div class="onda-container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">NUESTRO EQUIPO</span>
+                <h2>En las mejores <em>manos.</em></h2>
+            </div>
+            <p>Profesionales que cuidan cada detalle de tu estilo.</p>
+        </div>
+        @if (cargandoProfesionales)
+        {
+            <p role="status">Cargando profesionales...</p>
+        }
+        else if (errorProfesionales is not null)
+        {
+            <p class="onda-notice" role="alert">@errorProfesionales</p>
+        }
+        else if (profesionales.Count == 0)
+        {
+            <p>Por el momento no hay profesionales activos para mostrar.</p>
+        }
+        else
+        {
+            <div class="team-grid">
+                @foreach (var profesional in profesionales)
+                {
+                    <ProfessionalCard Nombre="@profesional.NombreCompleto"
+                                      Especialidad="@profesional.Especialidad"
+                                      FotoUrl="@FotoIlustrativaPorId(profesional.ProfesionalId)" />
+                }
+                @* Cuarta tarjeta EXCLUSIVAMENTE visual: no se guarda en SQL Server. *@
+                <ProfessionalCard Nombre="Sofía Campos"
+                                  Especialidad="Ejemplo de profesional sin fotografía"
+                                  EsEjemplo="true" />
+            </div>
+        }
+        <p class="demo-note">
+            Los profesionales activos se obtienen de SQL Server. Las tres fotografías son ilustrativas
+            y están vinculadas a los IDs de demostración (1, 2 y 3), no representan necesariamente
+            a esas personas. Sofía Campos es una tarjeta de ejemplo sin foto: no existe en la base de
+            datos ni puede seleccionarse para reservar.
+        </p>
+    </div>
+</section>
 
-<section id="galeria" class="section gallery-section"><div class="onda-container"><span class="eyebrow">INSPIRACIÓN</span><h2>Un estilo para <em>cada historia</em></h2><div class="gallery-grid"><div><span>CORTE &amp; FORMA</span></div><div><span>COLOR &amp; LUZ</span></div><div><span>TEXTURA &amp; MOVIMIENTO</span></div></div><p class="demo-note">Espacios reservados para fotografías de trabajos autorizadas.</p></div></section>
+<section id="galeria" class="section gallery-section">
+    <div class="onda-container">
+        <span class="eyebrow">INSPIRACIÓN</span>
+        <h2>Un estilo para <em>cada historia</em></h2>
+        <div class="gallery-grid">
+            <a class="gallery-card" href="https://www.pexels.com/photo/woman-getting-a-haircut-3992872/" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía de referencia: corte y forma">
+                <img src="https://images.pexels.com/photos/3992872/pexels-photo-3992872.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=900" alt="Profesional preparando un corte en un salón de peluquería" loading="lazy" />
+                <span>CORTE &amp; FORMA</span>
+            </a>
+            <a class="gallery-card" href="https://www.pexels.com/photo/woman-at-the-salon-3993312/" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía de referencia: color y luz">
+                <img src="https://images.pexels.com/photos/3993312/pexels-photo-3993312.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=900" alt="Aplicación de coloración en un salón de peluquería" loading="lazy" />
+                <span>COLOR &amp; LUZ</span>
+            </a>
+            <a class="gallery-card" href="https://www.pexels.com/photo/cute-girl-while-making-curls-12774831/" target="_blank" rel="noopener noreferrer" aria-label="Ver fotografía de referencia: textura y movimiento">
+                <img src="https://images.pexels.com/photos/12774831/pexels-photo-12774831.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=900" alt="Trabajo de peinado con ondas y rizos" loading="lazy" />
+                <span>TEXTURA &amp; MOVIMIENTO</span>
+            </a>
+        </div>
+        <p class="demo-note">Fotografías ilustrativas de Pexels: no representan trabajos reales de ONDA. Requieren conexión a internet.</p>
+    </div>
+</section>
 
 <section class="section testimonial-section"><div class="onda-container"><span class="eyebrow">EXPERIENCIAS</span><h2>La experiencia <em>ONDA</em></h2><blockquote>“Queremos que cada visita sea un espacio para dedicarte tiempo y sentirte bien.”</blockquote><p class="demo-note">Texto institucional de ejemplo; todavía no se muestran testimonios reales.</p></div></section>
 
@@ -40,14 +104,51 @@
 <section id="contacto" class="section contact-section"><div class="onda-container contact-grid"><div><span class="eyebrow">VISITANOS</span><h2>Estamos para <em>vos.</em></h2><p>Contacto y dirección del salón: datos por definir.</p></div><div class="hours"><h3>Horarios de atención</h3><p>Lunes a viernes <strong>09:00 – 19:00</strong></p><p>Sábados <strong>09:00 – 13:00</strong></p><p>Domingos <strong>Cerrado</strong></p></div></div></section>
 
 @code {
+    // Asociación SOLO VISUAL para los tres registros del seed académico.
+    // Si se cambian los IDs en la base, se mostrarán las iniciales automáticamente.
+    private static string? FotoIlustrativaPorId(int profesionalId) => profesionalId switch
+    {
+        1 => "/images/equipo/maria-gonzalez.webp",
+        2 => "/images/equipo/juan-perez.webp",
+        3 => "/images/equipo/laura-rodriguez.webp",
+        _ => null
+    };
+
     private IReadOnlyList<ServicioDto> servicios = Array.Empty<ServicioDto>();
-    private bool cargando = true;
-    private string? error;
+    private IReadOnlyList<ProfesionalDto> profesionales = Array.Empty<ProfesionalDto>();
+    private bool cargandoServicios = true;
+    private bool cargandoProfesionales = true;
+    private string? errorServicios;
+    private string? errorProfesionales;
 
     protected override async Task OnInitializedAsync()
     {
-        try { servicios = await ServicioService.ListarActivosAsync(); }
-        catch (Exception) { error = "No se pudieron cargar los servicios. Verificá la conexión con SQL Server."; }
-        finally { cargando = false; }
+        // Se gestionan los dos errores por separado para que si uno falla,
+        // el otro listado siga mostrándose.
+        try
+        {
+            servicios = await ServicioService.ListarActivosAsync();
+        }
+        catch (Exception)
+        {
+            errorServicios = "No se pudieron cargar los servicios. Verificá la conexión con SQL Server.";
+        }
+        finally
+        {
+            cargandoServicios = false;
+        }
+
+        try
+        {
+            profesionales = await ProfesionalService.ListarActivosAsync();
+        }
+        catch (Exception)
+        {
+            errorProfesionales = "No se pudo cargar el equipo por el momento.";
+        }
+        finally
+        {
+            cargandoProfesionales = false;
+        }
     }
 }

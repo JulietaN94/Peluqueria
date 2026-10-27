@@ -1,12 +1,20 @@
-@using Microsoft.AspNetCore.Components.Routing
 <nav class="site-nav onda-container" aria-label="Navegación principal">
-    <NavLink href="/" Match="NavLinkMatch.All" class="brand" @onclick="CerrarMenu">
-        <span class="brand-main">ONDA</span><span class="brand-sub">PELUQUERÍA</span>
-    </NavLink>
-    <button type="button" class="menu-toggle" aria-label="Abrir o cerrar menú" aria-expanded="@menuAbierto" @onclick="AlternarMenu">
+    @* Enlace HTML normal para que el CSS Isolation aplique el estilo al logo. *@
+    <a class="brand" href="/" @onclick="CerrarMenu" aria-label="ONDA Peluquería, ir al inicio">
+        <span class="brand-main">ONDA</span>
+        <span class="brand-sub">PELUQUERÍA</span>
+    </a>
+
+    <button type="button"
+            class="menu-toggle"
+            aria-label="@(menuAbierto ? "Cerrar menú" : "Abrir menú")"
+            aria-controls="onda-nav-links"
+            aria-expanded="@menuAbierto"
+            @onclick="AlternarMenu">
         <span></span><span></span><span></span>
     </button>
-    <div class="nav-links @(menuAbierto ? "open" : "")">
+
+    <div id="onda-nav-links" class="nav-links @(menuAbierto ? "open" : "")">
         <a href="/#servicios" @onclick="CerrarMenu">Servicios</a>
         <a href="/#nosotros" @onclick="CerrarMenu">Nosotros</a>
         <a href="/#equipo" @onclick="CerrarMenu">Equipo</a>
@@ -15,6 +23,7 @@
         <a class="nav-cta" href="/#reservas" @onclick="CerrarMenu">Reservar turno <span aria-hidden="true">↗</span></a>
     </div>
 </nav>
+
 @code {
     private bool menuAbierto;
     private void AlternarMenu() => menuAbierto = !menuAbierto;

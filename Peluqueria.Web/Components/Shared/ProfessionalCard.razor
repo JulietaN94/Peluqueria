@@ -1,0 +1,40 @@
+@* Tarjeta de un profesional: foto opcional y fallback con iniciales. *@
+<article class="professional-card" aria-label="@(EsEjemplo ? $"Ejemplo: {Nombre}, sin imagen" : Nombre)">
+    <div class="portrait-area">
+        @if (!string.IsNullOrWhiteSpace(FotoUrl))
+        {
+            <img class="portrait-photo"
+                 src="@FotoUrl"
+                 alt="Imagen ilustrativa de peluquería para la tarjeta de @Nombre"
+                 loading="lazy" decoding="async" />
+            <span class="portrait-tag">FOTO ILUSTRATIVA</span>
+        }
+        else
+        {
+            <div class="portrait-monogram" aria-hidden="true">@Iniciales</div>
+            <div class="portrait-accent" aria-hidden="true"></div>
+            <span class="portrait-tag">SIN FOTOGRAFÍA</span>
+        }
+    </div>
+    <div class="professional-info">
+        <span class="professional-kicker">@(EsEjemplo ? "EJEMPLO VISUAL" : "EQUIPO ONDA")</span>
+        <h3>@Nombre</h3>
+        <p>@(string.IsNullOrWhiteSpace(Especialidad) ? "Profesional del salón" : Especialidad)</p>
+        @if (EsEjemplo)
+        {
+            <small class="professional-note">Tarjeta de demostración · No figura en la base de datos</small>
+        }
+    </div>
+</article>
+
+@code {
+    [Parameter] public string Nombre { get; set; } = string.Empty;
+    [Parameter] public string? Especialidad { get; set; }
+    [Parameter] public string? FotoUrl { get; set; }
+    [Parameter] public bool EsEjemplo { get; set; }
+
+    private string Iniciales => string.Concat(
+        Nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+              .Take(2)
+              .Select(p => char.ToUpperInvariant(p[0])));
+}
