@@ -1,0 +1,13 @@
+<article class="service-card">
+    <div class="service-top"><span class="number">@Numero.ToString("00")</span><span class="service-duration">@DuracionMinutos min</span></div>
+    <h3>@Nombre</h3>
+    @if (!string.IsNullOrWhiteSpace(Descripcion)) { <p>@Descripcion</p> }
+    <div class="service-bottom"><strong>@Precio.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("es-AR"))</strong><span>Servicio disponible</span></div>
+</article>
+@code {
+    [Parameter] public int Numero { get; set; }
+    [Parameter] public string Nombre { get; set; } = string.Empty;
+    [Parameter] public string? Descripcion { get; set; }
+    [Parameter] public decimal Precio { get; set; }
+    [Parameter] public int DuracionMinutos { get; set; }
+}

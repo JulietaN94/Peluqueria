@@ -112,7 +112,6 @@ builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 var app = builder.Build();
 
 
-
 // ==========================================
 // 8. MIGRACIONES Y DATOS INICIALES
 // ==========================================

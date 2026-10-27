@@ -1,0 +1,53 @@
+@page "/"
+@using Peluqueria.Application.Interfaces
+@using Peluqueria.Application.DTOs.Servicios
+@using Peluqueria.Web.Components.Shared
+@inject IServicioService ServicioService
+
+<PageTitle>ONDA Peluquería | Tu estilo, tu esencia</PageTitle>
+
+<section class="hero onda-container">
+    <div class="hero-copy">
+        <span class="eyebrow">BIENVENIDA A ONDA PELUQUERÍA</span>
+        <h1>Tu estilo,<br /><em>tu esencia.</em></h1>
+        <p>Un espacio para renovarte, conectar con vos y disfrutar del cuidado que merecés.</p>
+        <a class="onda-button" href="#reservas">Reservar mi turno <span aria-hidden="true">↗</span></a>
+        <span class="small-note">Un momento para vos, a tu manera.</span>
+    </div>
+    <div class="hero-art"><div class="hero-glow"><img src="/images/logo-onda.jpeg" alt="Logo original de ONDA Peluquería" /></div><span class="hero-label">CUIDADO &amp; ESTILO</span></div>
+</section>
+
+<section id="servicios" class="section services-section">
+    <div class="onda-container">
+        <div class="section-head"><div><span class="eyebrow">LO QUE HACEMOS</span><h2>Servicios pensados <em>para vos</em></h2></div><p>Tu próximo cambio empieza con un buen momento.</p></div>
+        @if (cargando) { <p role="status">Cargando servicios...</p> }
+        else if (error is not null) { <p class="onda-notice" role="alert">@error</p> }
+        else if (servicios.Count == 0) { <p>No hay servicios activos para mostrar.</p> }
+        else { <div class="services-grid">@foreach (var (servicio, indice) in servicios.Select((s,i)=>(s,i))) { <ServiceCard Numero="@(indice + 1)" Nombre="@servicio.Nombre" Descripcion="@servicio.Descripcion" Precio="@servicio.Precio" DuracionMinutos="@servicio.DuracionMinutos" /> }</div> }
+    </div>
+</section>
+
+<section id="nosotros" class="section about-section"><div class="onda-container about-grid"><div class="decorative-quote">“</div><div><span class="eyebrow">NUESTRA FILOSOFÍA</span><h2>La belleza está en <em>ser vos.</em></h2><p>En ONDA creemos en el cuidado personal como un momento de bienestar. Queremos que te sientas cómoda, escuchada y acompañada en cada visita.</p><p class="demo-note">Presentación de demostración para el proyecto académico.</p></div></div></section>
+
+<section id="equipo" class="section"><div class="onda-container"><span class="eyebrow">EL EQUIPO</span><h2>Manos que <em>inspiran confianza</em></h2><div class="team-grid"><article><div class="avatar">MG</div><h3>María González</h3><p>Profesional del salón</p></article><article><div class="avatar">JP</div><h3>Juan Pérez</h3><p>Profesional del salón</p></article><article><div class="avatar">LR</div><h3>Laura Rodríguez</h3><p>Profesional del salón</p></article></div><p class="demo-note">Nombres de demostración cargados inicialmente en la base de datos.</p></div></section>
+
+<section id="galeria" class="section gallery-section"><div class="onda-container"><span class="eyebrow">INSPIRACIÓN</span><h2>Un estilo para <em>cada historia</em></h2><div class="gallery-grid"><div><span>CORTE &amp; FORMA</span></div><div><span>COLOR &amp; LUZ</span></div><div><span>TEXTURA &amp; MOVIMIENTO</span></div></div><p class="demo-note">Espacios reservados para fotografías de trabajos autorizadas.</p></div></section>
+
+<section class="section testimonial-section"><div class="onda-container"><span class="eyebrow">EXPERIENCIAS</span><h2>La experiencia <em>ONDA</em></h2><blockquote>“Queremos que cada visita sea un espacio para dedicarte tiempo y sentirte bien.”</blockquote><p class="demo-note">Texto institucional de ejemplo; todavía no se muestran testimonios reales.</p></div></section>
+
+<section id="reservas" class="section booking-section"><div class="onda-container booking-content"><div><span class="eyebrow">TU PRÓXIMO MOMENTO</span><h2>Un nuevo look <em>te espera.</em></h2><p>Pronto vas a poder elegir servicio, profesional y horario desde esta página.</p><span class="pill-status">Reserva online en preparación</span></div><div class="booking-mark">ONDA</div></div></section>
+
+<section id="contacto" class="section contact-section"><div class="onda-container contact-grid"><div><span class="eyebrow">VISITANOS</span><h2>Estamos para <em>vos.</em></h2><p>Contacto y dirección del salón: datos por definir.</p></div><div class="hours"><h3>Horarios de atención</h3><p>Lunes a viernes <strong>09:00 – 19:00</strong></p><p>Sábados <strong>09:00 – 13:00</strong></p><p>Domingos <strong>Cerrado</strong></p></div></div></section>
+
+@code {
+    private IReadOnlyList<ServicioDto> servicios = Array.Empty<ServicioDto>();
+    private bool cargando = true;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { servicios = await ServicioService.ListarActivosAsync(); }
+        catch (Exception) { error = "No se pudieron cargar los servicios. Verificá la conexión con SQL Server."; }
+        finally { cargando = false; }
+    }
+}

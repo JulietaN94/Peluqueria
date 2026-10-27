@@ -1,0 +1,14 @@
+@inherits LayoutComponentBase
+
+<div class="onda-shell">
+    <header class="onda-header"><NavMenu /></header>
+    <main id="contenido-principal" class="onda-main">@Body</main>
+    <footer class="onda-footer">
+        <div class="onda-container footer-content">
+            <div><strong>ONDA</strong><small>PELUQUERÍA</small><p>Tu estilo, tu esencia.</p></div>
+            <div><a href="/#servicios">Servicios</a><a href="/#equipo">Equipo</a><a href="/#contacto">Contacto</a></div>
+            <span>Proyecto demostrativo · @DateTime.Now.Year</span>
+        </div>
+    </footer>
+</div>
+<div id="blazor-error-ui">Ocurrió un error. <a href="" class="reload">Recargar</a> <a class="dismiss">×</a></div>

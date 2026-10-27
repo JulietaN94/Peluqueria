@@ -1,30 +1,22 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Peluqueria.Web</a>
+@using Microsoft.AspNetCore.Components.Routing
+<nav class="site-nav onda-container" aria-label="Navegación principal">
+    <NavLink href="/" Match="NavLinkMatch.All" class="brand" @onclick="CerrarMenu">
+        <span class="brand-main">ONDA</span><span class="brand-sub">PELUQUERÍA</span>
+    </NavLink>
+    <button type="button" class="menu-toggle" aria-label="Abrir o cerrar menú" aria-expanded="@menuAbierto" @onclick="AlternarMenu">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links @(menuAbierto ? "open" : "")">
+        <a href="/#servicios" @onclick="CerrarMenu">Servicios</a>
+        <a href="/#nosotros" @onclick="CerrarMenu">Nosotros</a>
+        <a href="/#equipo" @onclick="CerrarMenu">Equipo</a>
+        <a href="/#galeria" @onclick="CerrarMenu">Galería</a>
+        <a href="/#contacto" @onclick="CerrarMenu">Contacto</a>
+        <a class="nav-cta" href="/#reservas" @onclick="CerrarMenu">Reservar turno <span aria-hidden="true">↗</span></a>
     </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+</nav>
+@code {
+    private bool menuAbierto;
+    private void AlternarMenu() => menuAbierto = !menuAbierto;
+    private void CerrarMenu() => menuAbierto = false;
+}
