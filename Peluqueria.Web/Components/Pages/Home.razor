@@ -13,7 +13,7 @@
         <span class="eyebrow">BIENVENIDA A ONDA PELUQUERÍA</span>
         <h1>Tu estilo,<br /><em>tu esencia.</em></h1>
         <p>Un espacio para renovarte, conectar con vos y disfrutar del cuidado que merecés.</p>
-        <a class="onda-button" href="#reservas">Reservar turno <span aria-hidden="true">↗</span></a>
+        <a class="onda-button" href="/reservar">Reservar turno <span aria-hidden="true">↗</span></a>
     </div>
     <div class="hero-art"><div class="hero-glow"><img src="/images/logo-onda.jpeg" alt="Logo original de ONDA Peluquería" /></div><span class="hero-label">CUIDADO &amp; ESTILO</span></div>
 </section>
@@ -21,11 +21,29 @@
 <section id="servicios" class="section services-section">
     <div class="onda-container">
         <div class="section-head"><div><span class="eyebrow">LO QUE HACEMOS</span><h2>Servicios pensados <em>para vos</em></h2></div><p>Tu próximo cambio empieza con un buen momento.</p></div>
-        @if (cargandoServicios) { <p role="status">Cargando servicios...</p> }
-        else if (errorServicios is not null) { <p class="onda-notice" role="alert">@errorServicios</p> }
-        else if (servicios.Count == 0) { <p>No hay servicios activos para mostrar.</p> }
-        else { <div class="services-grid">@foreach (var (servicio, indice) in servicios.Select((s,i)=>(s,i))) { <ServiceCard Numero="@(indice + 1)" Nombre="@servicio.Nombre" Descripcion="@servicio.Descripcion" Precio="@servicio.Precio" DuracionMinutos="@servicio.DuracionMinutos" /> }</div> }
-    </div>
+        @if (cargandoServicios)
+        {
+            <p role="status">Cargando servicios...</p>
+        }
+        else if (errorServicios is not null)
+        {
+
+            <p class="onda-notice" role="alert">@errorServicios</p>
+        }
+        else if (servicios.Count == 0)
+        {
+
+            <p>No hay servicios activos para mostrar.</p>
+        }
+        else
+        {
+
+            <div class="services-grid">@foreach (var (servicio, indice) in servicios.Select((s,i)=>(s,i))) {
+                <ServiceCard Numero="@(indice + 1)" Nombre="@servicio.Nombre" Descripcion="@servicio.Descripcion" Precio="@servicio.Precio" DuracionMinutos="@servicio.DuracionMinutos" />
+            }
+        </div>
+    }
+</div>
 </section>
 
 <section id="nosotros" class="section about-section"><div class="onda-container about-grid"><div class="decorative-quote">“</div><div><span class="eyebrow">NUESTRA FILOSOFÍA</span><h2>La belleza está en <em>ser vos.</em></h2><p>En ONDA creemos en el cuidado personal como un momento de bienestar. Queremos que te sientas cómoda, escuchada y acompañada en cada visita.</p><p class="demo-note">Presentación de demostración para el proyecto académico.</p></div></div></section>
@@ -77,54 +95,29 @@
 
 <section id="galeria" class="section gallery-section">
     <div class="onda-container">
-
         <span class="eyebrow">INSPIRACIÓN</span>
-
         <h2>Un estilo para <em>cada historia</em></h2>
-
         <div class="gallery-grid">
-
-            <!-- Imagen 1: Corte y forma -->
             <div class="gallery-card">
-                <img src="/images/galeria/Profesional1.png"
-                     alt="Profesional realizando un corte de cabello en ONDA"
-                     loading="lazy" />
-
+                <img src="/images/galeria/Profesional1.png" alt="Ilustración de un corte de cabello en ONDA" loading="lazy" />
                 <span>CORTE &amp; FORMA</span>
             </div>
-
-            <!-- Imagen 2: Color y luz -->
             <div class="gallery-card">
-                <img src="/images/galeria/Profesional2.png"
-                     alt="Profesional realizando una coloración en ONDA"
-                     loading="lazy" />
-
+                <img src="/images/galeria/Profesional2.png" alt="Ilustración de una coloración en ONDA" loading="lazy" />
                 <span>COLOR &amp; LUZ</span>
             </div>
-
-            <!-- Imagen 3: Textura y movimiento -->
             <div class="gallery-card">
-                <img src="/images/galeria/Profesional3.png"
-                     alt="Profesional realizando un peinado en ONDA"
-                     loading="lazy" />
-
+                <img src="/images/galeria/Profesional3.png" alt="Ilustración de un peinado en ONDA" loading="lazy" />
                 <span>TEXTURA &amp; MOVIMIENTO</span>
             </div>
-
         </div>
-
-        <p class="demo-note">
-            Imágenes ilustrativas creadas para el proyecto
-            académico ONDA Peluquería.
-        </p>
-
+        <p class="demo-note">Imágenes ilustrativas creadas para el proyecto académico ONDA Peluquería.</p>
     </div>
 </section>
 
-
 <section class="section testimonial-section"><div class="onda-container"><span class="eyebrow">EXPERIENCIAS</span><h2>La experiencia <em>ONDA</em></h2><blockquote>“Queremos que cada visita sea un espacio para dedicarte tiempo y sentirte bien.”</blockquote><p class="demo-note">Texto institucional de ejemplo; todavía no se muestran testimonios reales.</p></div></section>
 
-<section id="reservas" class="section booking-section"><div class="onda-container booking-content"><div><span class="eyebrow">TU PRÓXIMO MOMENTO</span><h2>Un nuevo look <em>te espera.</em></h2><p>Pronto vas a poder elegir servicio, profesional y horario desde esta página.</p><span class="pill-status">Reserva online en preparación</span></div><div class="booking-mark">ONDA</div></div></section>
+<section id="reservas" class="section booking-section"><div class="onda-container booking-content"><div><span class="eyebrow">TU PRÓXIMO MOMENTO</span><h2>Un nuevo look <em>te espera.</em></h2><p>Elegí tu servicio, profesional y horario en unos pocos pasos.</p><a class="pill-status" href="/reservar" style="color:white;text-decoration:none">Reservar turno ↗</a></div><div class="booking-mark">ONDA</div></div></section>
 
 <section id="contacto" class="section contact-section"><div class="onda-container contact-grid"><div><span class="eyebrow">VISITANOS</span><h2>Estamos para <em>vos.</em></h2><p>Contacto y dirección del salón: datos por definir.</p></div><div class="hours"><h3>Horarios de atención</h3><p>Lunes a viernes <strong>09:00 – 19:00</strong></p><p>Sábados <strong>09:00 – 13:00</strong></p><p>Domingos <strong>Cerrado</strong></p></div></div></section>
 

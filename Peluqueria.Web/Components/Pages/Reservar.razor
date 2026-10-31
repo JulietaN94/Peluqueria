@@ -1,0 +1,442 @@
+﻿@page "/reservar"
+@using System.ComponentModel.DataAnnotations
+@using System.Globalization
+@using Peluqueria.Application.DTOs.Servicios
+@using Peluqueria.Application.DTOs.Profesionales
+@using Peluqueria.Application.DTOs.Turnos
+@using Peluqueria.Application.Interfaces
+@using Peluqueria.Application.Services
+@inject IServicioService ServicioService
+@inject IProfesionalService ProfesionalService
+@inject DisponibilidadService DisponibilidadService
+@inject ReservaService ReservaService
+@inject TimeProvider Clock
+@inject ILogger<Reservar> Logger
+
+<PageTitle>Reservar turno | ONDA Peluquería</PageTitle>
+
+<section class="reserva-pagina onda-container">
+    <div class="reserva-encabezado">
+        <a href="/" class="reserva-volver">← Volver a ONDA</a>
+        <span class="eyebrow">TU MOMENTO EN ONDA</span>
+        <h1>Reservá tu <em>momento.</em></h1>
+        <p>Elegí cómo querés cuidarte. Te acompañamos en cada paso.</p>
+    </div>
+
+    <div class="reserva-layout">
+        <div class="reserva-panel">
+            <div class="pasos" aria-label="Progreso de la reserva">
+                @for (var i = 1; i <= 5; i++)
+                {
+                    <div class="paso @(i == paso ? "actual" : i < paso ? "completado" : "")">
+                        <span class="paso-numero">@i</span>
+                        <span class="paso-texto">@NombrePaso(i)</span>
+                    </div>
+                }
+            </div>
+
+            @if (cargandoCatalogos)
+            {
+                <p class="mensaje" role="status">Preparando los servicios y profesionales...</p>
+            }
+            else if (errorCatalogos is not null)
+            {
+                <div class="aviso error" role="alert">@errorCatalogos</div>
+                <button type="button" class="boton-secundario" @onclick="CargarCatalogosAsync">Volver a intentar</button>
+            }
+            else if (paso == 1)
+            {
+                <div class="etapa-titulo">
+                    <span class="eyebrow">PASO 01</span>
+                    <h2>¿Qué te gustaría hacerte?</h2>
+                    <p>Los precios y duraciones se obtienen de nuestra base de datos.</p>
+                </div>
+                @if (servicios.Count == 0)
+                {
+                    <p class="mensaje">No hay servicios activos disponibles para reservar.</p>
+                }
+                else
+                {
+                    <div class="opciones-servicios">
+                        @foreach (var servicio in servicios)
+                        {
+                            <button type="button" class="opcion-servicio"
+                                    @onclick="() => ElegirServicio(servicio)">
+                                <span class="opcion-principal">
+                                    <strong>@servicio.Nombre</strong>
+                                    <small>@servicio.DuracionMinutos minutos</small>
+                                </span>
+                                <span class="opcion-precio">@Dinero(servicio.Precio)</span>
+                                <span class="opcion-flecha" aria-hidden="true">→</span>
+                            </button>
+                        }
+                    </div>
+                }
+            }
+            else if (paso == 2)
+            {
+                <div class="etapa-titulo">
+                    <span class="eyebrow">PASO 02</span>
+                    <h2>Elegí tu profesional.</h2>
+                    <p>También podés elegir cualquier profesional que tenga un horario libre.</p>
+                </div>
+                <div class="opciones-profesionales">
+                    <button type="button" class="opcion-profesional cualquiera"
+                            @onclick="() => ElegirProfesionalAsync(null)">
+                        <span class="foto-fallback" aria-hidden="true">✦</span>
+                        <span><strong>Cualquier profesional</strong><small>Te asignamos alguien disponible</small></span>
+                        <span aria-hidden="true">→</span>
+                    </button>
+                    @foreach (var profesional in profesionales)
+                    {
+                        var foto = FotoProfesional(profesional.ProfesionalId);
+                        <button type="button" class="opcion-profesional"
+                                @onclick="() => ElegirProfesionalAsync(profesional.ProfesionalId)">
+                            @if (foto is not null)
+                            {
+                                <img class="profesional-miniatura" src="@foto" alt="Retrato ilustrativo del equipo" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="foto-fallback" aria-hidden="true">@Iniciales(profesional.NombreCompleto)</span>
+                            }
+                            <span><strong>@profesional.NombreCompleto</strong><small>@(profesional.Especialidad ?? "Profesional de ONDA")</small></span>
+                            <span aria-hidden="true">→</span>
+                        </button>
+                    }
+                </div>
+                <button type="button" class="boton-texto" @onclick="() => paso = 1">← Volver a servicios</button>
+            }
+            else if (paso == 3)
+            {
+                <div class="etapa-titulo">
+                    <span class="eyebrow">PASO 03</span>
+                    <h2>Busquemos un horario.</h2>
+                    <p>Mostramos únicamente las horas libres para el servicio seleccionado.</p>
+                </div>
+                <div class="campo-fecha">
+                    <label for="fecha-reserva">Fecha del turno</label>
+                    <input id="fecha-reserva" type="date" value="@fechaSeleccionada.ToString("yyyy-MM-dd", Cultura)"
+                           min="@FechaMinima" max="@FechaMaxima" @onchange="CambiarFechaAsync" />
+                    <small>Podés consultar fechas durante los próximos 45 días. Domingos cerrado.</small>
+                </div>
+                @if (cargandoHorarios)
+                {
+                    <p class="mensaje" role="status">Consultando disponibilidad en SQL Server...</p>
+                }
+                else if (errorHorarios is not null)
+                {
+                    <div class="aviso error" role="alert">@errorHorarios</div>
+                    <button type="button" class="boton-secundario" @onclick="CargarHorariosAsync">Reintentar consulta</button>
+                }
+                else if (horasLibres.Count == 0)
+                {
+                    <div class="aviso neutro" role="status">No hay horarios disponibles para esta fecha. Probá otro día o profesional.</div>
+                }
+                else
+                {
+                    <p class="opciones-caption">@horasLibres.Count opciones para @fechaSeleccionada.ToString("dddd d 'de' MMMM", Cultura)</p>
+                    <div class="horarios-grid">
+                        @foreach (var hora in horasLibres)
+                        {
+                            <button type="button" class="opcion-hora @(horaElegida == hora ? "seleccionada" : "")"
+                                    aria-pressed="@(horaElegida == hora)"
+                                    @onclick="() => ElegirHora(hora)">
+                                @hora.ToString("HH:mm")
+                            </button>
+                        }
+                    </div>
+                    <p class="aclaracion">
+                        @if (profesionalElegido is null)
+                        {
+                            <span>Si elegiste «Cualquier profesional», se asignará uno de los disponibles al confirmar.</span>
+                        }
+                        else
+                        {
+                            <span>Horarios disponibles de @NombreProfesionalSeleccionado.</span>
+                        }
+                    </p>
+                }
+                <div class="controles-inferiores">
+                    <button type="button" class="boton-texto" @onclick="() => paso = 2">← Volver</button>
+                    <button type="button" class="boton-primario" disabled="@(!horaElegida.HasValue)"
+                            @onclick="() => paso = 4">
+                        Continuar →
+                    </button>
+                </div>
+            }
+            else if (paso == 4)
+            {
+                <div class="etapa-titulo">
+                    <span class="eyebrow">PASO 04</span>
+                    <h2>Contanos quién viene.</h2>
+                    <p>No necesitás crear una cuenta para reservar.</p>
+                </div>
+                <div class="datos-formulario">
+                    <div class="campo">
+                        <label for="nombre-cliente">Nombre y apellido *</label>
+                        <input id="nombre-cliente" type="text" @bind="nombreCompleto" @bind:event="oninput"
+                               maxlength="150" autocomplete="name" placeholder="Por ejemplo, Ana García" />
+                    </div>
+                    <div class="campo">
+                        <label for="telefono-cliente">Teléfono de contacto *</label>
+                        <input id="telefono-cliente" type="tel" @bind="telefono" @bind:event="oninput"
+                               maxlength="30" autocomplete="tel" placeholder="Por ejemplo, 11 5555 1234" />
+                    </div>
+                    <p class="aclaracion">Estos datos se utilizarán para identificar la reserva. Esta versión académica no envía notificaciones.</p>
+                </div>
+                @if (errorReserva is not null)
+                {
+                    <div class="aviso error" role="alert">@errorReserva</div>
+                }
+                <div class="controles-inferiores">
+                    <button type="button" class="boton-texto" disabled="@enviando" @onclick="() => paso = 3">← Volver</button>
+                    <button type="button" class="boton-primario" disabled="@enviando"
+                            @onclick="ConfirmarReservaAsync">
+                        @(enviando ? "Guardando..." : "Confirmar reserva →")
+                    </button>
+                </div>
+            }
+            else if (paso == 5 && turnoConfirmado is not null)
+            {
+                <div class="reserva-exito" role="status">
+                    <span class="exito-icono" aria-hidden="true">✓</span>
+                    <span class="eyebrow">TU RESERVA ESTÁ REGISTRADA</span>
+                    <h2>¡Te esperamos en ONDA!</h2>
+                    <p>Guardá este código para identificar tu turno.</p>
+                    <div class="codigo-reserva"><small>CÓDIGO DE RESERVA</small><strong>@turnoConfirmado.CodigoReserva</strong></div>
+                    <dl class="detalle-confirmado">
+                        <div><dt>Servicio</dt><dd>@turnoConfirmado.ServicioNombre</dd></div>
+                        <div><dt>Profesional</dt><dd>@turnoConfirmado.ProfesionalNombre</dd></div>
+                        <div><dt>Fecha</dt><dd>@turnoConfirmado.FechaHoraInicio.ToString("dddd d 'de' MMMM 'de' yyyy", Cultura)</dd></div>
+                        <div><dt>Hora</dt><dd>@turnoConfirmado.FechaHoraInicio.ToString("HH:mm") a @turnoConfirmado.FechaHoraFin.ToString("HH:mm")</dd></div>
+                        <div><dt>Precio</dt><dd>@Dinero(turnoConfirmado.Precio)</dd></div>
+                        <div><dt>Estado</dt><dd>@turnoConfirmado.Estado</dd></div>
+                    </dl>
+                    <div class="exito-acciones">
+                        <a href="/" class="boton-secundario">Volver al inicio</a>
+                        <button type="button" class="boton-primario" @onclick="NuevaReserva">Hacer otra reserva</button>
+                    </div>
+                    <p class="aclaracion">Guardá tu código. La consulta o cancelación en línea se incorporará en una próxima etapa.</p>
+                </div>
+            }
+        </div>
+
+        @if (paso < 5)
+        {
+            <aside class="reserva-resumen" aria-label="Resumen de tu selección">
+                <span class="eyebrow">TU ELECCIÓN</span>
+                <h3>Un momento para vos.</h3>
+                <dl>
+                    <div><dt>Servicio</dt><dd>@(servicioElegido?.Nombre ?? "Por elegir")</dd></div>
+                    <div><dt>Duración</dt><dd>@(servicioElegido is null ? "—" : $"{servicioElegido.DuracionMinutos} min")</dd></div>
+                    <div><dt>Profesional</dt><dd>@(servicioElegido is null || paso < 3 ? "Por elegir" : NombreProfesionalSeleccionado)</dd></div>
+                    <div><dt>Fecha y hora</dt><dd>@(horaElegida.HasValue ? horaElegida.Value.ToString("dd/MM/yyyy · HH:mm") : "Por elegir")</dd></div>
+                </dl>
+                <div class="total"><span>Precio del servicio</span><strong>@(servicioElegido is null ? "—" : Dinero(servicioElegido.Precio))</strong></div>
+                <p>Los horarios dependen de la disponibilidad real. La confirmación vuelve a comprobar que el turno siga libre.</p>
+            </aside>
+        }
+    </div>
+</section>
+
+@code {
+    private static readonly CultureInfo Cultura = CultureInfo.GetCultureInfo("es-AR");
+    private IReadOnlyList<ServicioDto> servicios = Array.Empty<ServicioDto>();
+    private IReadOnlyList<ProfesionalDto> profesionales = Array.Empty<ProfesionalDto>();
+    private IReadOnlyList<DateTime> horasLibres = Array.Empty<DateTime>();
+    private ServicioDto? servicioElegido;
+    private int? profesionalElegido;
+    private DateTime fechaSeleccionada;
+    private DateTime? horaElegida;
+    private TurnoDto? turnoConfirmado;
+    private string nombreCompleto = string.Empty;
+    private string telefono = string.Empty;
+    private string? errorCatalogos;
+    private string? errorHorarios;
+    private string? errorReserva;
+    private bool cargandoCatalogos = true;
+    private bool cargandoHorarios;
+    private bool enviando;
+    private int paso = 1;
+
+    private string FechaMinima => Clock.GetLocalNow().Date.ToString("yyyy-MM-dd", Cultura);
+    private string FechaMaxima => Clock.GetLocalNow().Date.AddDays(45).ToString("yyyy-MM-dd", Cultura);
+    private string NombreProfesionalSeleccionado => profesionalElegido is null
+        ? "Cualquier profesional" : profesionales.FirstOrDefault(p => p.ProfesionalId == profesionalElegido)?.NombreCompleto ?? "Profesional";
+
+    protected override async Task OnInitializedAsync()
+    {
+        fechaSeleccionada = Clock.GetLocalNow().Date.AddDays(1);
+        await CargarCatalogosAsync();
+    }
+
+    private async Task CargarCatalogosAsync()
+    {
+        cargandoCatalogos = true;
+        errorCatalogos = null;
+        try
+        {
+            servicios = await ServicioService.ListarActivosAsync();
+            profesionales = await ProfesionalService.ListarActivosAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error al cargar catálogo de reservas");
+            errorCatalogos = "No pudimos cargar los datos. Revisá la conexión con SQL Server e intentá nuevamente.";
+        }
+        finally
+        {
+            cargandoCatalogos = false;
+        }
+    }
+
+    private void ElegirServicio(ServicioDto servicio)
+    {
+        servicioElegido = servicio;
+        profesionalElegido = null;
+        horaElegida = null;
+        errorReserva = null;
+        paso = 2;
+    }
+
+    private async Task ElegirProfesionalAsync(int? id)
+    {
+        profesionalElegido = id;
+        horaElegida = null;
+        paso = 3;
+        await CargarHorariosAsync();
+    }
+
+    private async Task CambiarFechaAsync(ChangeEventArgs args)
+    {
+        horaElegida = null;
+        if (!DateTime.TryParseExact(args.Value?.ToString(), "yyyy-MM-dd", Cultura,
+                DateTimeStyles.None, out var nuevaFecha))
+        {
+            horasLibres = Array.Empty<DateTime>();
+            errorHorarios = "Seleccioná una fecha válida.";
+            return;
+        }
+        fechaSeleccionada = nuevaFecha;
+        await CargarHorariosAsync();
+    }
+
+    private async Task CargarHorariosAsync()
+    {
+        horaElegida = null;
+        horasLibres = Array.Empty<DateTime>();
+        errorHorarios = null;
+        if (servicioElegido is null) return;
+        var hoy = Clock.GetLocalNow().Date;
+        if (fechaSeleccionada.Date < hoy || fechaSeleccionada.Date > hoy.AddDays(45))
+        {
+            errorHorarios = "Elegí una fecha dentro de los próximos 45 días.";
+            return;
+        }
+        cargandoHorarios = true;
+        try
+        {
+            var alternativas = await DisponibilidadService.ObtenerDisponibilidadAsync(
+                servicioElegido.ServicioId, DateOnly.FromDateTime(fechaSeleccionada), profesionalElegido);
+            // Con 'Cualquier profesional' mostramos una hora una sola vez.
+            // El backend elegirá el profesional libre al confirmar la reserva.
+            horasLibres = alternativas.Select(x => x.FechaHoraInicio).Distinct().OrderBy(x => x).ToList();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error consultando horarios libres");
+            errorHorarios = "No se pudieron consultar los horarios. Intentá de nuevo.";
+        }
+        finally
+        {
+            cargandoHorarios = false;
+        }
+    }
+
+    private void ElegirHora(DateTime fechaHora) => horaElegida = fechaHora;
+
+    private async Task ConfirmarReservaAsync()
+    {
+        if (enviando) return;
+        errorReserva = null;
+        if (servicioElegido is null || !horaElegida.HasValue)
+        {
+            errorReserva = "Faltan datos de la selección. Volvé al paso anterior.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(nombreCompleto) || nombreCompleto.Trim().Length < 3)
+        {
+            errorReserva = "Ingresá tu nombre y apellido.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(telefono) || telefono.Trim().Length < 6)
+        {
+            errorReserva = "Ingresá un teléfono de contacto válido.";
+            return;
+        }
+        enviando = true;
+        try
+        {
+            var solicitud = new CrearReservaDto
+            {
+                ServicioId = servicioElegido.ServicioId,
+                ProfesionalId = profesionalElegido,
+                FechaHoraInicio = horaElegida.Value,
+                NombreCompleto = nombreCompleto.Trim(),
+                Telefono = telefono.Trim()
+            };
+            turnoConfirmado = await ReservaService.CrearAsync(solicitud);
+            paso = 5;
+        }
+        catch (ValidationException ex)
+        {
+            errorReserva = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error guardando nueva reserva");
+            errorReserva = "No pudimos guardar la reserva. Comprobá el resultado antes de volver a intentarlo.";
+        }
+        finally
+        {
+            enviando = false;
+        }
+    }
+
+    private void NuevaReserva()
+    {
+        paso = 1;
+        servicioElegido = null;
+        profesionalElegido = null;
+        horaElegida = null;
+        turnoConfirmado = null;
+        nombreCompleto = string.Empty;
+        telefono = string.Empty;
+        errorReserva = null;
+        errorHorarios = null;
+        fechaSeleccionada = Clock.GetLocalNow().Date.AddDays(1);
+    }
+
+    private static string NombrePaso(int numero) => numero switch
+    {
+        1 => "Servicio",
+        2 => "Profesional",
+        3 => "Fecha y hora",
+        4 => "Tus datos",
+        _ => "Listo"
+    };
+    private static string Dinero(decimal valor) => "$ " + valor.ToString("N0", Cultura);
+    private static string? FotoProfesional(int id) => id switch
+    {
+        1 => "/images/equipo/maria-gonzalez.webp",
+        2 => "/images/equipo/juan-perez.webp",
+        3 => "/images/equipo/laura-rodriguez.webp",
+        _ => null
+    };
+    private static string Iniciales(string nombre)
+    {
+        var partes = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return string.Concat(partes.Take(2).Select(p => char.ToUpperInvariant(p[0])));
+    }
+}

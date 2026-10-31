@@ -1,0 +1,597 @@
+/* CSS for Reservar component */
+.reserva-pagina {
+    padding-top: 3.4rem;
+    padding-bottom: 6rem;
+    min-height: 75vh
+}
+
+.reserva-encabezado {
+    max-width: 880px;
+    margin-bottom: 2.7rem
+}
+
+.reserva-volver {
+    display: inline-block;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .88rem;
+    margin-bottom: 1.9rem
+}
+
+    .reserva-volver:hover {
+        color: var(--terra)
+    }
+
+.reserva-encabezado .eyebrow {
+    display: block
+}
+
+.reserva-encabezado h1 {
+    font: 400 clamp(2.8rem,6vw,5.5rem)/1.12 Georgia,serif;
+    letter-spacing: -.044em;
+    margin: .9rem 0 1.2rem;
+    color: var(--ink)
+}
+
+    .reserva-encabezado h1 em {
+        color: var(--terra);
+        font-weight: 400
+    }
+
+.reserva-encabezado p {
+    font-size: 1.08rem;
+    color: var(--muted);
+    line-height: 1.7
+}
+
+.reserva-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 310px;
+    gap: 2rem;
+    align-items: start
+}
+
+.reserva-panel {
+    background: #fffdf9;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    min-height: 475px;
+    padding: 2rem 2.15rem;
+    box-shadow: 0 22px 50px #5c34200d
+}
+
+.pasos {
+    display: grid;
+    grid-template-columns: repeat(5,minmax(0,1fr));
+    gap: .35rem;
+    margin-bottom: 2.8rem
+}
+
+.paso {
+    text-align: center;
+    color: #9f8e82;
+    min-width: 0;
+    border-top: 3px solid #eaded3;
+    padding-top: .7rem
+}
+
+    .paso.actual, .paso.completado {
+        border-color: var(--terra)
+    }
+
+.paso-numero {
+    display: block;
+    width: 27px;
+    height: 27px;
+    line-height: 25px;
+    margin: 0 auto .4rem;
+    border: 1px solid #cbb9ab;
+    border-radius: 50%;
+    font-size: .73rem
+}
+
+.paso.actual .paso-numero, .paso.completado .paso-numero {
+    background: var(--terra);
+    color: white;
+    border-color: var(--terra)
+}
+
+.paso-texto {
+    font-size: .72rem;
+    white-space: nowrap
+}
+
+.etapa-titulo {
+    margin-bottom: 1.75rem
+}
+
+    .etapa-titulo h2, .reserva-exito h2 {
+        font: 400 clamp(1.9rem,3vw,2.8rem)/1.2 Georgia,serif;
+        color: var(--ink);
+        letter-spacing: -.028em;
+        margin: .6rem 0
+    }
+
+    .etapa-titulo p {
+        color: var(--muted);
+        line-height: 1.7;
+        margin: 0
+    }
+
+.opciones-servicios {
+    display: grid;
+    gap: .7rem
+}
+
+.opcion-servicio {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    transition: background .2s,border-color .2s,transform .2s
+}
+
+    .opcion-servicio:hover, .opcion-profesional:hover {
+        border-color: var(--terra);
+        background: #fff7f0;
+        transform: translateY(-1px)
+    }
+
+.opcion-principal {
+    flex: 1;
+    min-width: 0
+}
+
+    .opcion-principal strong, .opcion-profesional strong {
+        display: block;
+        font: 400 1.25rem Georgia,serif
+    }
+
+    .opcion-principal small, .opcion-profesional small {
+        display: block;
+        color: var(--muted);
+        margin-top: .35rem;
+        font-size: .82rem
+    }
+
+.opcion-precio {
+    font-size: .94rem;
+    color: var(--terra);
+    white-space: nowrap;
+    font-weight: 700
+}
+
+.opcion-flecha {
+    font-size: 1.3rem;
+    color: var(--terra)
+}
+
+.opciones-profesionales {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .9rem
+}
+
+.opcion-profesional {
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 15px;
+    display: flex;
+    gap: .8rem;
+    align-items: center;
+    text-align: left;
+    color: var(--ink);
+    padding: .8rem;
+    cursor: pointer;
+    min-width: 0;
+    transition: background .2s,border-color .2s,transform .2s
+}
+
+    .opcion-profesional > span:nth-last-child(2) {
+        min-width: 0;
+        flex: 1
+    }
+
+    .opcion-profesional strong {
+        font-size: 1.05rem
+    }
+
+    .opcion-profesional > span:last-child {
+        color: var(--terra)
+    }
+
+.profesional-miniatura, .foto-fallback {
+    height: 64px;
+    width: 64px;
+    min-width: 64px;
+    object-fit: cover;
+    border-radius: 12px
+}
+
+.foto-fallback {
+    background: #ead8cb;
+    color: #a14d36;
+    display: grid;
+    place-items: center;
+    font: 400 1.35rem Georgia,serif
+}
+
+.campo-fecha {
+    display: grid;
+    gap: .5rem;
+    max-width: 360px;
+    margin-bottom: 1.6rem
+}
+
+    .campo-fecha label, .campo label {
+        font-size: .83rem;
+        font-weight: 700;
+        color: var(--ink)
+    }
+
+    .campo-fecha input, .campo input {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #d9c7bb;
+        border-radius: 12px;
+        color: var(--ink);
+        font: inherit;
+        padding: .87rem 1rem;
+        min-height: 48px
+    }
+
+    .campo-fecha small {
+        color: var(--muted);
+        font-size: .76rem
+    }
+
+.opciones-caption {
+    color: var(--muted);
+    margin-bottom: 1rem;
+    text-transform: capitalize
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(5,minmax(0,1fr));
+    gap: .65rem
+}
+
+.opcion-hora {
+    color: var(--ink);
+    padding: .78rem .3rem;
+    background: white;
+    border: 1px solid #d9c7bb;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700
+}
+
+    .opcion-hora:hover, .opcion-hora.seleccionada {
+        background: var(--terra);
+        border-color: var(--terra);
+        color: white
+    }
+
+.aclaracion {
+    font-size: .78rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin: 1.15rem 0
+}
+
+.mensaje {
+    color: var(--muted);
+    margin: 2rem 0
+}
+
+.aviso {
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    line-height: 1.6;
+    margin-bottom: 1rem
+}
+
+    .aviso.error {
+        background: #fff0e9;
+        color: #923923;
+        border: 1px solid #eec8b5
+    }
+
+    .aviso.neutro {
+        background: #f7f0e9;
+        border: 1px solid var(--line);
+        color: #6a5347
+    }
+
+.datos-formulario {
+    display: grid;
+    gap: 1.4rem
+}
+
+.campo {
+    display: grid;
+    gap: .6rem
+}
+
+    .campo input:focus, .campo-fecha input:focus {
+        outline: 2px solid #c26244;
+        outline-offset: 2px
+    }
+
+.controles-inferiores {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2.2rem
+}
+
+.boton-primario, .boton-secundario, .boton-texto {
+    border: 0;
+    border-radius: 100px;
+    font: 600 .93rem 'DM Sans',Arial,sans-serif;
+    cursor: pointer;
+    padding: 1rem 1.45rem;
+    text-decoration: none;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem
+}
+
+.boton-primario {
+    background: var(--terra);
+    color: white
+}
+
+    .boton-primario:hover:not(:disabled) {
+        background: #9e4b33;
+        color: white
+    }
+
+    .boton-primario:disabled {
+        opacity: .45;
+        cursor: not-allowed
+    }
+
+.boton-secundario {
+    background: #f1e2d7;
+    color: #654236
+}
+
+.boton-texto {
+    background: transparent;
+    color: var(--terra);
+    padding-left: 0
+}
+
+    .boton-texto:disabled {
+        opacity: .5;
+        cursor: not-allowed
+    }
+
+.reserva-resumen {
+    position: sticky;
+    top: 115px;
+    background: #f2e6db;
+    border-radius: 20px;
+    padding: 2rem 1.65rem;
+    color: var(--ink)
+}
+
+    .reserva-resumen h3 {
+        font: 400 1.65rem Georgia,serif;
+        margin: .6rem 0 1.5rem
+    }
+
+    .reserva-resumen dl {
+        margin: 0;
+        display: grid;
+        gap: 1rem
+    }
+
+        .reserva-resumen dl div {
+            border-bottom: 1px solid #d8c5b8;
+            padding-bottom: .85rem
+        }
+
+    .reserva-resumen dt {
+        color: #8d705d;
+        font-size: .8rem;
+        margin-bottom: .3rem
+    }
+
+    .reserva-resumen dd {
+        font-size: .94rem;
+        margin: 0;
+        font-weight: 600
+    }
+
+    .reserva-resumen .total {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        align-items: center
+    }
+
+        .reserva-resumen .total span {
+            font-size: .8rem
+        }
+
+        .reserva-resumen .total strong {
+            color: var(--terra);
+            white-space: nowrap;
+            font-size: 1.2rem
+        }
+
+    .reserva-resumen > p {
+        font-size: .76rem;
+        color: #8b7467;
+        line-height: 1.65;
+        margin: 1.5rem 0 0
+    }
+
+.reserva-exito {
+    text-align: center;
+    max-width: 550px;
+    margin: auto
+}
+
+.exito-icono {
+    display: grid;
+    place-items: center;
+    background: #e5efdf;
+    color: #507647;
+    font-size: 1.6rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 1.1rem
+}
+
+.reserva-exito > p {
+    color: var(--muted)
+}
+
+.codigo-reserva {
+    padding: 1.5rem;
+    background: #f4e8de;
+    border-radius: 14px;
+    margin: 1.5rem auto
+}
+
+    .codigo-reserva small {
+        display: block;
+        font-size: .72rem;
+        letter-spacing: .15em;
+        color: #886754
+    }
+
+    .codigo-reserva strong {
+        display: block;
+        font: 600 clamp(1.3rem,3vw,2rem) Georgia,serif;
+        letter-spacing: .055em;
+        color: #aa5238;
+        margin-top: .5rem;
+        overflow-wrap: anywhere
+    }
+
+.detalle-confirmado {
+    text-align: left
+}
+
+    .detalle-confirmado div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .65rem 0;
+        border-bottom: 1px solid var(--line)
+    }
+
+    .detalle-confirmado dt {
+        color: var(--muted)
+    }
+
+    .detalle-confirmado dd {
+        text-align: right;
+        font-weight: 700;
+        margin: 0;
+        max-width: 60%
+    }
+
+.exito-acciones {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.7rem
+}
+
+@media(max-width:980px) {
+    .reserva-layout {
+        grid-template-columns: 1fr
+    }
+
+    .reserva-resumen {
+        position: static;
+        grid-row: 2
+    }
+
+    .reserva-panel {
+        padding: 1.5rem
+    }
+}
+
+@media(max-width:620px) {
+    .reserva-pagina {
+        padding-top: 2rem;
+        padding-bottom: 4rem
+    }
+
+    .paso-texto {
+        font-size: .56rem;
+        white-space: normal
+    }
+
+    .paso-numero {
+        width: 24px;
+        height: 24px;
+        line-height: 22px
+    }
+
+    .reserva-panel {
+        padding: 1.2rem 1rem
+    }
+
+    .opciones-profesionales {
+        grid-template-columns: 1fr
+    }
+
+    .horarios-grid {
+        grid-template-columns: repeat(3,minmax(0,1fr))
+    }
+
+    .opcion-servicio {
+        gap: .7rem;
+        padding: .9rem .8rem
+    }
+
+    .opcion-principal strong {
+        font-size: 1.08rem
+    }
+
+    .opcion-precio {
+        font-size: .78rem
+    }
+
+    .reserva-encabezado h1 {
+        font-size: 2.9rem
+    }
+
+    .reserva-resumen {
+        padding: 1.5rem
+    }
+
+    .controles-inferiores {
+        align-items: stretch
+    }
+
+        .controles-inferiores .boton-primario {
+            flex: 1
+        }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .opcion-servicio, .opcion-profesional {
+        transition: none
+    }
+}
