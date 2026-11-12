@@ -24,7 +24,7 @@
     </div>
 
     <div class="reserva-layout">
-        <div class="reserva-panel">
+        <div class="reserva-panel" tabindex="-1" @ref="panelReserva">
             <div class="pasos" aria-label="Progreso de la reserva">
                 @for (var i = 1; i <= 5; i++)
                 {
@@ -105,7 +105,7 @@
                         </button>
                     }
                 </div>
-                <button type="button" class="boton-texto" @onclick="() => paso = 1">← Volver a servicios</button>
+                <button type="button" class="boton-texto" @onclick="() => IrAPaso(1)">← Volver a servicios</button>
             }
             else if (paso == 3)
             {
@@ -135,7 +135,7 @@
                 }
                 else
                 {
-                    <p class="opciones-caption">@horasLibres.Count opciones para @fechaSeleccionada.ToString("dddd d 'de' MMMM", Cultura)</p>
+                    <p class="opciones-caption">@(horasLibres.Count == 1 ? "1 opción disponible para" : $"{horasLibres.Count} opciones disponibles para") @fechaSeleccionada.ToString("dddd d 'de' MMMM", Cultura)</p>
                     <div class="horarios-grid">
                         @foreach (var hora in horasLibres)
                         {
@@ -158,9 +158,9 @@
                     </p>
                 }
                 <div class="controles-inferiores">
-                    <button type="button" class="boton-texto" @onclick="() => paso = 2">← Volver</button>
+                    <button type="button" class="boton-texto" @onclick="() => IrAPaso(2)">← Volver</button>
                     <button type="button" class="boton-primario" disabled="@(!horaElegida.HasValue)"
-                            @onclick="() => paso = 4">
+                            @onclick="() => IrAPaso(4)">
                         Continuar →
                     </button>
                 </div>
@@ -190,7 +190,7 @@
                     <div class="aviso error" role="alert">@errorReserva</div>
                 }
                 <div class="controles-inferiores">
-                    <button type="button" class="boton-texto" disabled="@enviando" @onclick="() => paso = 3">← Volver</button>
+                    <button type="button" class="boton-texto" disabled="@enviando" @onclick="() => IrAPaso(3)">← Volver</button>
                     <button type="button" class="boton-primario" disabled="@enviando"
                             @onclick="ConfirmarReservaAsync">
                         @(enviando ? "Guardando..." : "Confirmar reserva →")
@@ -215,9 +215,10 @@
                     </dl>
                     <div class="exito-acciones">
                         <a href="/" class="boton-secundario">Volver al inicio</a>
+                        <a href="/mi-reserva" class="boton-secundario">Consultar mi reserva</a>
                         <button type="button" class="boton-primario" @onclick="NuevaReserva">Hacer otra reserva</button>
                     </div>
-                    <p class="aclaracion">Guardá tu código. La consulta o cancelación en línea se incorporará en una próxima etapa.</p>
+                    <p class="aclaracion">Guardá tu código para consultar o cancelar este turno desde «Mi reserva».</p>
                 </div>
             }
         </div>
@@ -242,6 +243,23 @@
 
 @code {
     private static readonly CultureInfo Cultura = CultureInfo.GetCultureInfo("es-AR");
+    private ElementReference panelReserva;
+    private bool enfocarPanel;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (enfocarPanel)
+        {
+            enfocarPanel = false;
+            await panelReserva.FocusAsync();
+        }
+    }
+
+    private void IrAPaso(int nuevoPaso)
+    {
+        paso = nuevoPaso;
+        enfocarPanel = true;
+    }
     private IReadOnlyList<ServicioDto> servicios = Array.Empty<ServicioDto>();
     private IReadOnlyList<ProfesionalDto> profesionales = Array.Empty<ProfesionalDto>();
     private IReadOnlyList<DateTime> horasLibres = Array.Empty<DateTime>();
@@ -297,14 +315,14 @@
         profesionalElegido = null;
         horaElegida = null;
         errorReserva = null;
-        paso = 2;
+        IrAPaso(2);
     }
 
     private async Task ElegirProfesionalAsync(int? id)
     {
         profesionalElegido = id;
         horaElegida = null;
-        paso = 3;
+        IrAPaso(3);
         await CargarHorariosAsync();
     }
 
@@ -387,7 +405,7 @@
                 Telefono = telefono.Trim()
             };
             turnoConfirmado = await ReservaService.CrearAsync(solicitud);
-            paso = 5;
+            IrAPaso(5);
         }
         catch (ValidationException ex)
         {
@@ -406,7 +424,7 @@
 
     private void NuevaReserva()
     {
-        paso = 1;
+        IrAPaso(1);
         servicioElegido = null;
         profesionalElegido = null;
         horaElegida = null;

@@ -1,0 +1,199 @@
+﻿@page "/mi-reserva"
+@using System.Globalization
+@using Peluqueria.Application.DTOs.Turnos
+@using Peluqueria.Application.Services
+@using Peluqueria.Domain.Enums
+@inject ConsultaReservaService ConsultaReservaService
+@inject TimeProvider Clock
+@inject ILogger<MiReserva> Logger
+
+<PageTitle>Mi reserva | ONDA Peluquería</PageTitle>
+
+<section class="consulta-pagina onda-container">
+    <header class="consulta-hero">
+        <a class="regresar" href="/">← Volver a ONDA</a>
+        <span class="eyebrow">TU TURNO EN ONDA</span>
+        <h1>Consultá tu <em>reserva.</em></h1>
+        <p>Ingresá el código que recibiste al reservar. No necesitás iniciar sesión.</p>
+    </header>
+
+    <div class="consulta-layout">
+        <div class="consulta-panel">
+            <div class="formulario-consulta">
+                <label for="codigo-reserva">Código de reserva</label>
+                <div class="codigo-entrada">
+                    <input id="codigo-reserva" type="text" value="@codigo"
+                           @oninput="CambiarCodigo" maxlength="20" autocomplete="off"
+                           spellcheck="false" placeholder="PEL-XXXXXXXXXXXX"
+                           aria-describedby="ayuda-codigo" />
+                    <button type="button" class="accion-primaria"
+                            disabled="@(consultando || cancelando || string.IsNullOrWhiteSpace(codigo))"
+                            @onclick="BuscarAsync">
+                        @(consultando ? "Consultando…" : "Consultar")
+                    </button>
+                </div>
+                <small id="ayuda-codigo">El código contiene las letras PEL-, seguidas de 12 caracteres.</small>
+            </div>
+
+            @if (errorConsulta is not null)
+            {
+                <div class="mensaje-error" role="alert">@errorConsulta</div>
+            }
+
+            @if (reserva is not null)
+            {
+                <section class="resultado" aria-label="Detalle de la reserva">
+                    <div class="resultado-cabecera">
+                        <div>
+                            <span class="eyebrow">DETALLE DE TU TURNO</span>
+                            <h2>Un momento para vos.</h2>
+                        </div>
+                        <span class="estado @(reserva.Estado == EstadoTurno.Cancelado ? "cancelado" : "")">
+                            @TextoEstado(reserva.Estado)
+                        </span>
+                    </div>
+                    <p class="codigo-detalle">@reserva.CodigoReserva</p>
+                    <dl class="detalle">
+                        <div><dt>Nombre</dt><dd>@reserva.ClienteNombre</dd></div>
+                        <div><dt>Servicio</dt><dd>@reserva.ServicioNombre</dd></div>
+                        <div><dt>Profesional</dt><dd>@reserva.ProfesionalNombre</dd></div>
+                        <div><dt>Fecha</dt><dd>@reserva.FechaHoraInicio.ToString("dddd d 'de' MMMM 'de' yyyy", Cultura)</dd></div>
+                        <div><dt>Horario</dt><dd>@reserva.FechaHoraInicio.ToString("HH:mm") a @reserva.FechaHoraFin.ToString("HH:mm")</dd></div>
+                        <div><dt>Precio</dt><dd>@Dinero(reserva.Precio)</dd></div>
+                    </dl>
+
+                    @if (mensajeExito is not null)
+                    {
+                        <p class="mensaje-exito" role="status">@mensajeExito</p>
+                    }
+
+                    @if (SePuedeCancelar)
+                    {
+                        @if (!confirmarCancelacion)
+                        {
+                            <button type="button" class="accion-secundaria"
+                                    @onclick="() => confirmarCancelacion = true">
+                                Cancelar esta reserva
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="confirmacion" role="group" aria-label="Confirmar cancelación">
+                                <p>¿Querés cancelar este turno? Esta acción no se puede deshacer desde la web.</p>
+                                <div class="acciones-confirmacion">
+                                    <button type="button" class="accion-peligro" disabled="@cancelando"
+                                            @onclick="CancelarAsync">
+                                        @(cancelando ? "Cancelando…" : "Sí, cancelar reserva")
+                                    </button>
+                                    <button type="button" class="accion-secundaria" disabled="@cancelando"
+                                            @onclick="() => confirmarCancelacion = false">
+                                        Conservar turno
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else if (reserva.Estado == EstadoTurno.Cancelado)
+                    {
+                        <p class="informacion">Este turno está cancelado y ya no ocupa un horario de la agenda.</p>
+                    }
+                    else
+                    {
+                        <p class="informacion">Este turno ya comenzó o no admite cancelación por internet.</p>
+                    }
+                </section>
+            }
+        </div>
+
+        <aside class="consulta-ayuda">
+            <span class="eyebrow">¿NECESITÁS AYUDA?</span>
+            <h2>Tu momento, a tu manera.</h2>
+            <p>Encontrarás tu código en la pantalla que aparece al completar una reserva.</p>
+            <p>Podés consultar un turno aunque ya haya pasado. Para cancelarlo, debe estar pendiente o confirmado y todavía no haber comenzado.</p>
+            <a href="/reservar" class="enlace-reservar">Hacer otra reserva ↗</a>
+            <p class="advertencia">El código es privado: cualquier persona que lo conozca podría consultar o cancelar el turno en esta versión académica.</p>
+        </aside>
+    </div>
+</section>
+
+@code {
+    private static readonly CultureInfo Cultura = CultureInfo.GetCultureInfo("es-AR");
+    private string codigo = string.Empty;
+    private ReservaPublicaDto? reserva;
+    private string? errorConsulta;
+    private string? mensajeExito;
+    private bool consultando;
+    private bool cancelando;
+    private bool confirmarCancelacion;
+
+    private bool SePuedeCancelar => reserva is not null &&
+        (reserva.Estado == EstadoTurno.Pendiente || reserva.Estado == EstadoTurno.Confirmado) &&
+        reserva.FechaHoraInicio > Clock.GetLocalNow().DateTime;
+
+    private void CambiarCodigo(ChangeEventArgs e)
+    {
+        codigo = e.Value?.ToString() ?? string.Empty;
+        reserva = null;
+        errorConsulta = null;
+        mensajeExito = null;
+        confirmarCancelacion = false;
+    }
+
+    private async Task BuscarAsync()
+    {
+        if (consultando || cancelando) return;
+        consultando = true;
+        errorConsulta = null;
+        mensajeExito = null;
+        confirmarCancelacion = false;
+        reserva = null;
+        try
+        {
+            reserva = await ConsultaReservaService.ConsultarAsync(codigo);
+            if (reserva is null)
+                errorConsulta = "No encontramos una reserva con ese código. Revisá los caracteres e intentá nuevamente.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "No se pudo consultar la reserva");
+            errorConsulta = "No pudimos consultar tu reserva. Intentá nuevamente.";
+        }
+        finally { consultando = false; }
+    }
+
+    private async Task CancelarAsync()
+    {
+        if (!confirmarCancelacion || cancelando || reserva is null) return;
+        cancelando = true;
+        errorConsulta = null;
+        mensajeExito = null;
+        try
+        {
+            var ok = await ConsultaReservaService.CancelarAsync(reserva.CodigoReserva);
+            confirmarCancelacion = false;
+            reserva = await ConsultaReservaService.ConsultarAsync(reserva.CodigoReserva);
+            if (ok)
+                mensajeExito = "Tu reserva se canceló correctamente. El horario vuelve a estar disponible.";
+            else
+                errorConsulta = "No pudimos cancelar el turno. Puede haber cambiado de estado o haber comenzado.";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "No se pudo cancelar la reserva");
+            confirmarCancelacion = false;
+            errorConsulta = "No pudimos completar la cancelación. Consultá nuevamente el estado antes de intentarlo.";
+        }
+        finally { cancelando = false; }
+    }
+
+    private static string Dinero(decimal valor) => "$ " + valor.ToString("N0", Cultura);
+    private static string TextoEstado(EstadoTurno estado) => estado switch
+    {
+        EstadoTurno.Pendiente => "Pendiente",
+        EstadoTurno.Confirmado => "Confirmado",
+        EstadoTurno.Cancelado => "Cancelado",
+        EstadoTurno.Finalizado => "Finalizado",
+        EstadoTurno.Ausente => "Ausente",
+        _ => "Estado desconocido"
+    };
+}

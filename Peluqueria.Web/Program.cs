@@ -82,6 +82,9 @@ builder.Services.AddScoped<DisponibilidadService>();
 // Creación de reservas
 builder.Services.AddScoped<ReservaService>();
 
+// Consulta y cancelación de reservas
+builder.Services.AddScoped<ConsultaReservaService>();
+
 // ==========================================
 // 6. REPOSITORIOS DE INFRASTRUCTURE
 // ==========================================
@@ -104,6 +107,11 @@ builder.Services.AddScoped<
 
 // Persistencia de reservas
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
+
+// Persistencia de consulta y cancelación
+builder.Services.AddScoped<
+    IConsultaReservaRepository,
+    ConsultaReservaRepository>();
 
 // ==========================================
 // 7. CONSTRUCCIÓN DE LA APLICACIÓN  (donde testeo)
