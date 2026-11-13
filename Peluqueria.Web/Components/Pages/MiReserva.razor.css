@@ -1,0 +1,324 @@
+/* ONDA Peluquería - Estilos aislados de MiReserva.razor
+   Corregido para reemplazar el archivo incompleto del proyecto.
+   No cargar por separado desde App.razor; Blazor lo incluye en Peluqueria.Web.styles.css. */
+
+.consulta-pagina {
+    padding-top: 3.1rem;
+    padding-bottom: 6rem;
+    min-height: 76vh
+}
+
+.consulta-hero {
+    max-width: 830px;
+    margin-bottom: 2.5rem
+}
+
+.regresar {
+    display: inline-block;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .88rem;
+    margin-bottom: 1.8rem
+}
+
+    .regresar:hover {
+        color: var(--terra)
+    }
+
+.consulta-hero .eyebrow {
+    display: block
+}
+
+.consulta-hero h1 {
+    font: 400 clamp(2.8rem,6vw,5rem)/1.12 Georgia,serif;
+    letter-spacing: -.045em;
+    color: var(--ink);
+    margin: .8rem 0 1.1rem
+}
+
+    .consulta-hero h1 em {
+        font-weight: 400;
+        color: var(--terra)
+    }
+
+.consulta-hero p {
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: var(--muted)
+}
+
+.consulta-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 320px;
+    gap: 2rem;
+    align-items: start
+}
+
+.consulta-panel {
+    background: #fffdf9;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 2.25rem;
+    min-height: 330px;
+    box-shadow: 0 22px 50px #5c34200d
+}
+
+.formulario-consulta label {
+    display: block;
+    font-weight: 700;
+    font-size: .9rem;
+    margin-bottom: .65rem
+}
+
+.codigo-entrada {
+    display: flex;
+    gap: .8rem;
+    align-items: stretch
+}
+
+    .codigo-entrada input {
+        flex: 1;
+        min-width: 0;
+        min-height: 50px;
+        border: 1px solid #d9c7bb;
+        border-radius: 12px;
+        background: white;
+        padding: .9rem 1rem;
+        font: 600 1rem 'DM Sans',Arial,sans-serif;
+        color: var(--ink);
+        letter-spacing: .04em
+    }
+
+        .codigo-entrada input:focus {
+            outline: 2px solid var(--terra);
+            outline-offset: 2px
+        }
+
+.formulario-consulta small {
+    display: block;
+    color: var(--muted);
+    font-size: .79rem;
+    margin-top: .65rem
+}
+
+.accion-primaria, .accion-secundaria, .accion-peligro, .enlace-reservar {
+    border: 0;
+    border-radius: 100px;
+    padding: .95rem 1.4rem;
+    text-decoration: none;
+    cursor: pointer;
+    font: 600 .92rem 'DM Sans',Arial,sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center
+}
+
+.accion-primaria {
+    background: var(--terra);
+    color: #fff
+}
+
+    .accion-primaria:hover:not(:disabled) {
+        background: #9e4b33
+    }
+
+    .accion-primaria:disabled, .accion-peligro:disabled {
+        opacity: .55;
+        cursor: not-allowed
+    }
+
+.accion-secundaria {
+    background: #f1e2d7;
+    color: #654236
+}
+
+    .accion-secundaria:hover {
+        background: #e9d4c4
+    }
+
+.accion-peligro {
+    background: #913e37;
+    color: #fff
+}
+
+    .accion-peligro:hover:not(:disabled) {
+        background: #722d27
+    }
+
+.mensaje-error {
+    padding: 1rem;
+    border-radius: 12px;
+    background: #fff0e9;
+    color: #923923;
+    border: 1px solid #eec8b5;
+    margin-top: 1.3rem
+}
+
+.mensaje-exito {
+    padding: 1rem;
+    border-radius: 12px;
+    background: #e5efdf;
+    color: #3d613d;
+    margin: 1rem 0
+}
+
+.resultado {
+    margin-top: 2.3rem;
+    border-top: 1px solid var(--line);
+    padding-top: 2rem
+}
+
+.resultado-cabecera {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem
+}
+
+.resultado h2 {
+    font: 400 2rem Georgia,serif;
+    margin: .5rem 0 1rem
+}
+
+.estado {
+    border-radius: 100px;
+    background: #f0dfbd;
+    color: #725323;
+    font-size: .8rem;
+    padding: .45rem .9rem;
+    font-weight: 600
+}
+
+    .estado.cancelado {
+        background: #eadbd8;
+        color: #803f38
+    }
+
+.codigo-detalle {
+    background: #f4e8de;
+    color: #a95237;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    letter-spacing: .08em;
+    font: 600 clamp(1.05rem,2.4vw,1.5rem) Georgia,serif;
+    overflow-wrap: anywhere
+}
+
+.detalle {
+    margin: 1rem 0 2rem
+}
+
+    .detalle div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1.1rem;
+        border-bottom: 1px solid var(--line);
+        padding: .85rem 0
+    }
+
+    .detalle dt {
+        color: var(--muted)
+    }
+
+    .detalle dd {
+        margin: 0;
+        font-weight: 600;
+        text-align: right;
+        max-width: 60%
+    }
+
+.confirmacion {
+    background: #f8eee5;
+    border: 1px solid #e9d8ca;
+    border-radius: 15px;
+    padding: 1.25rem;
+    margin-top: 1rem
+}
+
+    .confirmacion p {
+        margin: 0 0 1.1rem;
+        line-height: 1.6
+    }
+
+.acciones-confirmacion {
+    display: flex;
+    gap: .7rem;
+    flex-wrap: wrap
+}
+
+.informacion {
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.65
+}
+
+.consulta-ayuda {
+    background: #f2e6db;
+    border-radius: 20px;
+    padding: 2rem 1.6rem
+}
+
+    .consulta-ayuda h2 {
+        font: 400 1.8rem Georgia,serif;
+        margin: .6rem 0 1.3rem
+    }
+
+    .consulta-ayuda p {
+        font-size: .89rem;
+        color: #775d50;
+        line-height: 1.8
+    }
+
+    .consulta-ayuda .advertencia {
+        font-size: .78rem;
+        margin-top: 1.5rem;
+        color: #8f6251
+    }
+
+.enlace-reservar {
+    color: var(--terra);
+    background: #fffaf6;
+    margin-top: .55rem
+}
+
+@media(max-width:900px) {
+    .consulta-layout {
+        grid-template-columns: 1fr
+    }
+
+    .consulta-panel {
+        padding: 1.5rem
+    }
+
+    .consulta-ayuda {
+        padding: 1.5rem
+    }
+}
+
+@media(max-width:600px) {
+    .consulta-pagina {
+        padding-top: 2rem;
+        padding-bottom: 4rem
+    }
+
+    .consulta-panel {
+        padding: 1.2rem 1rem
+    }
+
+    .codigo-entrada {
+        flex-direction: column
+    }
+
+        .codigo-entrada .accion-primaria {
+            width: 100%
+        }
+
+    .resultado-cabecera {
+        flex-direction: column
+    }
+
+    .detalle dd {
+        max-width: 58%;
+        overflow-wrap: anywhere
+    }
+}
