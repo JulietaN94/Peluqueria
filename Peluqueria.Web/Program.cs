@@ -3,9 +3,10 @@ using Peluqueria.Web.Components;
 using Peluqueria.Web.State;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Antiforgery;
+using Peluqueria.Infrastructure.Identity;
 
 using Peluqueria.Infrastructure.Persistence;
-using Peluqueria.Infrastructure.Identity;
 
 // Servicios e interfaces de Application
 using Peluqueria.Application.Interfaces;
@@ -22,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddCascadingAuthenticationState();
 
 // ==========================================
 // 2. CONFIGURACIÓN DE SQL SERVER
@@ -176,6 +178,59 @@ app.UseAntiforgery();
 // ==========================================
 // 10. COMPONENTES BLAZOR
 // ==========================================
+
+// Acceso administrativo: las cookies se emiten en una solicitud HTTP,
+// nunca desde un evento de un componente interactivo Blazor Server.
+app.MapPost("/admin/ingresar", async Task<IResult> (
+    HttpContext http,
+    IAntiforgery antiforgery,
+    UserManager<ApplicationUser> usuarios,
+    SignInManager<ApplicationUser> ingreso) =>
+{
+    try
+    {
+        await antiforgery.ValidateRequestAsync(http);
+    }
+    catch (AntiforgeryValidationException)
+    {
+        return Results.BadRequest("La solicitud no es válida. Actualizá la página e intentá nuevamente.");
+    }
+
+    var formulario = await http.Request.ReadFormAsync();
+    var email = formulario["Email"].ToString().Trim();
+    var password = formulario["Password"].ToString();
+
+    if (email.Length > 256 || password.Length > 512 ||
+        string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        return Results.Redirect("/admin/acceso?error=1");
+
+    var usuario = await usuarios.FindByEmailAsync(email);
+    if (usuario is null || !await usuarios.IsInRoleAsync(usuario, "Administrador"))
+        return Results.Redirect("/admin/acceso?error=1");
+
+    var resultado = await ingreso.PasswordSignInAsync(
+        usuario, password, isPersistent: false, lockoutOnFailure: true);
+
+    return Results.Redirect(resultado.Succeeded
+        ? "/admin/servicios"
+        : "/admin/acceso?error=1");
+}).AllowAnonymous();
+
+app.MapPost("/admin/salir", async Task<IResult> (
+    HttpContext http, IAntiforgery antiforgery,
+    SignInManager<ApplicationUser> ingreso) =>
+{
+    try
+    {
+        await antiforgery.ValidateRequestAsync(http);
+    }
+    catch (AntiforgeryValidationException)
+    {
+        return Results.BadRequest("La solicitud no es válida.");
+    }
+    await ingreso.SignOutAsync();
+    return Results.Redirect("/");
+}).RequireAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

@@ -1,0 +1,38 @@
+﻿@page "/admin/acceso"
+@using Microsoft.AspNetCore.Components
+
+<section class="onda-admin-login onda-container">
+    <div class="onda-admin-panel">
+        <span class="eyebrow">ÁREA PRIVADA · ONDA</span>
+        <h1>Ingresá al panel.</h1>
+        <p>Acceso exclusivo para usuarios con rol Administrador.</p>
+
+        @if (Error == "1")
+        {
+            <div class="onda-admin-alert" role="alert">
+                No pudimos iniciar sesión. Comprobá el correo y la contraseña.
+            </div>
+        }
+
+        <form method="post" action="/admin/ingresar" data-enhance="false" class="onda-admin-form">
+            <AntiforgeryToken />
+            <div class="onda-admin-field">
+                <label for="admin-email">Correo del administrador</label>
+                <input id="admin-email" name="Email" type="email" autocomplete="username"
+                       maxlength="256" placeholder="admin@peluqueria.local" required />
+            </div>
+            <div class="onda-admin-field">
+                <label for="admin-pass">Contraseña</label>
+                <input id="admin-pass" name="Password" type="password" autocomplete="current-password"
+                       maxlength="512" required />
+            </div>
+            <button class="onda-admin-primary" type="submit">Ingresar al panel</button>
+        </form>
+        <a href="/" class="onda-admin-back">← Volver al sitio</a>
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
+}

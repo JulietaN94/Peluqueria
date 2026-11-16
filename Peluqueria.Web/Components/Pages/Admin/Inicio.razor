@@ -1,0 +1,17 @@
+﻿@page "/admin"
+@using Microsoft.AspNetCore.Authorization
+@using Peluqueria.Web.Components.Shared
+@attribute [Authorize(Roles = "Administrador")]
+
+<section class="onda-admin-page onda-container">
+    <span class="eyebrow">PANEL DE ADMINISTRACIÓN</span>
+    <h1>Gestioná ONDA.</h1>
+    <p class="onda-admin-intro">Creá, actualizá, buscá y administrá los datos del negocio con los servicios existentes.</p>
+    <AdminNavegacion />
+    <div class="onda-admin-home-grid">
+        <a class="onda-admin-home-card" href="/admin/servicios"><span>01</span><h2>Servicios</h2><p>Precios, duraciones y catálogo.</p><b>Administrar ↗</b></a>
+        <a class="onda-admin-home-card" href="/admin/profesionales"><span>02</span><h2>Profesionales</h2><p>Equipo, especialidades y disponibilidad en el catálogo.</p><b>Administrar ↗</b></a>
+        <a class="onda-admin-home-card" href="/admin/clientes"><span>03</span><h2>Clientes</h2><p>Contactos y observaciones privadas.</p><b>Administrar ↗</b></a>
+    </div>
+    <p class="onda-admin-note">Los registros se desactivan en lugar de borrarse físicamente, para conservar la integridad de las reservas históricas.</p>
+</section>

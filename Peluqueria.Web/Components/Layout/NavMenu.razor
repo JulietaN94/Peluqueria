@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Components.Authorization
 @using Peluqueria.Web.State
 @inject ReservaNavegacionState ReservaNavegacion
 @implements IDisposable
@@ -25,6 +26,11 @@
         <a href="/#galeria" @onclick="CerrarMenu">Galería</a>
         <a href="/#contacto" @onclick="CerrarMenu">Contacto</a>
         <a href="/mi-reserva" @onclick="CerrarMenu">Mi reserva</a>
+        <AuthorizeView Roles="Administrador">
+            <Authorized>
+                <a href="/admin" @onclick="CerrarMenu">Administración</a>
+            </Authorized>
+        </AuthorizeView>
         <a class="nav-cta" href="/reservar" @onclick="CerrarMenu">@(ReservaNavegacion.TieneReservaEnCurso ? "Continuar reserva" : "Reservar turno") <span aria-hidden="true">↗</span></a>
     </div>
 </nav>

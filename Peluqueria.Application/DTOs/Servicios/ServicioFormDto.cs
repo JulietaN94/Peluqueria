@@ -15,7 +15,9 @@ namespace Peluqueria.Application.DTOs.Servicios
         public string Nombre { get; set; } = string.Empty;
         [StringLength(500)]
         public string? Descripcion { get; set; }
-        [Range(typeof(decimal), "0", "9999999999999999.99", ErrorMessage = "El precio no puede ser negativo.")]
+        [Range(typeof(decimal), "0", "9999999999999999.99",
+    ParseLimitsInInvariantCulture = true,
+    ErrorMessage = "El precio no puede ser negativo.")]
         public decimal Precio { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "La duración debe ser mayor que cero.")]
         public int DuracionMinutos { get; set; }

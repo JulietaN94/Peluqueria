@@ -1,0 +1,176 @@
+﻿@page "/admin/profesionales"
+@using Microsoft.AspNetCore.Authorization
+@using Peluqueria.Web.Components.Shared
+@using Peluqueria.Application.Interfaces
+@using Peluqueria.Application.DTOs.Profesionales
+@using Peluqueria.Application.DTOs.Comun
+@attribute [Authorize(Roles = "Administrador")]
+@inject IProfesionalService ProfesionalesService
+@inject ILogger<Profesionales> Logger
+
+<section class="onda-admin-page onda-container">
+    <span class="eyebrow">ADMINISTRACIÓN · EQUIPO</span>
+    <h1>Profesionales.</h1>
+    <p class="onda-admin-intro">Mantené los datos del equipo y sus especialidades.</p>
+    <AdminNavegacion />
+
+    @if (!string.IsNullOrEmpty(Aviso)) { <p role="status" class="onda-admin-success">@Aviso</p> }
+    @if (!string.IsNullOrEmpty(Error)) { <p role="alert" class="onda-admin-alert">@Error</p> }
+
+    <div class="onda-admin-toolbar">
+        <SearchBox Value="@Busqueda" ValueChanged="BuscarAsync" Etiqueta="Buscar profesionales" Placeholder="Nombre o especialidad..." />
+        <button type="button" class="onda-admin-primary" @onclick="Nuevo">+ Nuevo profesional</button>
+    </div>
+
+    @if (MostrarFormulario)
+    {
+        <div class="onda-admin-panel" @key="Formulario">
+            <h2>@(EditandoId.HasValue ? "Editar profesional" : "Nuevo profesional")</h2>
+            <EditForm Model="@Formulario" OnValidSubmit="GuardarAsync" class="onda-admin-form">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="onda-admin-form-grid">
+                    <div class="onda-admin-field">
+                        <label for="pro-nombre">Nombre completo *</label>
+                        <InputText id="pro-nombre" @bind-Value="Formulario.NombreCompleto" />
+                        <ValidationMessage For="@(() => Formulario.NombreCompleto)" />
+                    </div>
+                    <div class="onda-admin-field">
+                        <label for="pro-telefono">Teléfono</label>
+                        <InputText id="pro-telefono" @bind-Value="Formulario.Telefono" />
+                        <ValidationMessage For="@(() => Formulario.Telefono)" />
+                    </div>
+                    <div class="onda-admin-field onda-admin-span-2">
+                        <label for="pro-especialidad">Especialidad</label>
+                        <InputText id="pro-especialidad" @bind-Value="Formulario.Especialidad" />
+                        <ValidationMessage For="@(() => Formulario.Especialidad)" />
+                    </div>
+                    <div class="onda-admin-field onda-admin-span-2">
+                        <label for="pro-obs">Observaciones internas</label>
+                        <InputTextArea id="pro-obs" @bind-Value="Formulario.Observaciones" />
+                        <ValidationMessage For="@(() => Formulario.Observaciones)" />
+                    </div>
+                    @if (EditandoId.HasValue)
+                    {
+                        <div class="onda-admin-field onda-admin-span-2">
+                            <label class="onda-admin-check"><InputCheckbox @bind-Value="Formulario.Activo" /> Profesional activo</label>
+                        </div>
+                    }
+                </div>
+                <div class="onda-admin-actions">
+                    <button type="submit" class="onda-admin-primary" disabled="@Procesando">@(Procesando ? "Guardando..." : "Guardar profesional")</button>
+                    <button type="button" class="onda-admin-secondary" @onclick="CancelarEdicion" disabled="@Procesando">Cancelar</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    @if (Cargando) { <p role="status">Cargando profesionales...</p> }
+    else
+    {
+        <div class="onda-admin-table-wrap">
+            <table class="onda-admin-table">
+                <thead><tr><th scope="col">Profesional</th><th scope="col">Especialidad</th><th scope="col">Contacto</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Resultados.Items)
+                    {
+                        <tr>
+                            <td><strong>@item.NombreCompleto</strong></td>
+                            <td>@item.Especialidad</td>
+                            <td>@item.Telefono</td>
+                            <td><span class="onda-admin-state @(item.Activo ? "activo" : "inactivo")">@(item.Activo ? "Activo" : "Inactivo")</span></td>
+                            <td class="onda-admin-row-actions">
+                                <button type="button" class="onda-admin-secondary" @onclick="() => Editar(item)">Editar</button>
+                                @if (item.Activo)
+                                {
+                                    <button type="button" class="onda-admin-danger" @onclick="() => SolicitarDesactivar(item)">Desactivar</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (Resultados.Items.Count == 0) { <p class="onda-admin-empty">No se encontraron profesionales.</p> }
+        </div>
+        <Pagination PaginaActual="@Pagina" PaginaActualChanged="CambiarPaginaAsync" TotalRegistros="@Resultados.TotalRegistros" TamanoPagina="@TamanoPagina" />
+    }
+    <ConfirmDialog Abierto="@ConfirmarDesactivacion" Procesando="@Procesando"
+                   Titulo="Desactivar profesional" Mensaje="Dejará de estar disponible para nuevas reservas; el historial se conserva."
+                   TextoConfirmar="Sí, desactivar" TextoCancelar="Volver"
+                   OnConfirmar="DesactivarAsync" OnCancelar="CerrarConfirmacion" />
+</section>
+
+@code {
+    private const int TamanoPagina = 10;
+    private PaginaResultadoDto<ProfesionalDto> Resultados = new();
+    private ProfesionalFormDto Formulario = new();
+    private string Busqueda = "";
+    private string? Aviso, Error;
+    private int Pagina = 1;
+    private int? EditandoId, DesactivarId;
+    private bool MostrarFormulario, ConfirmarDesactivacion, Procesando, Cargando;
+    private int VersionBusqueda;
+
+    protected override async Task OnInitializedAsync() => await CargarAsync();
+    private async Task CargarAsync()
+    {
+        var version = ++VersionBusqueda;
+        Cargando = true;
+        try
+        {
+            var datos = await ProfesionalesService.ListarAsync(Busqueda, Pagina, TamanoPagina);
+            if (version == VersionBusqueda) Resultados = datos;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error al listar profesionales");
+            if (version == VersionBusqueda) Error = "No se pudieron cargar los profesionales.";
+        }
+        finally { if (version == VersionBusqueda) Cargando = false; }
+    }
+    private async Task BuscarAsync(string texto) { Busqueda = texto; Pagina = 1; await CargarAsync(); }
+    private async Task CambiarPaginaAsync(int pagina) { Pagina = pagina; await CargarAsync(); }
+    private void Nuevo() { Error = Aviso = null; EditandoId = null; Formulario = new(); MostrarFormulario = true; }
+    private void Editar(ProfesionalDto dato)
+    {
+        Error = Aviso = null;
+        EditandoId = dato.ProfesionalId;
+        Formulario = new() { ProfesionalId = dato.ProfesionalId, NombreCompleto = dato.NombreCompleto,
+            Telefono = dato.Telefono, Especialidad = dato.Especialidad,
+            Observaciones = dato.Observaciones, Activo = dato.Activo };
+        MostrarFormulario = true;
+    }
+    private void CancelarEdicion() => MostrarFormulario = false;
+    private async Task GuardarAsync()
+    {
+        if (Procesando) return;
+        Procesando = true; Error = Aviso = null;
+        try
+        {
+            if (EditandoId.HasValue) await ProfesionalesService.ActualizarAsync(EditandoId.Value, Formulario);
+            else await ProfesionalesService.CrearAsync(Formulario);
+            MostrarFormulario = false;
+            Aviso = "Profesional guardado correctamente.";
+            Pagina = 1;
+            await CargarAsync();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "Error al guardar profesional"); Error = "No se pudo guardar el profesional. Revisá los datos."; }
+        finally { Procesando = false; }
+    }
+    private void SolicitarDesactivar(ProfesionalDto dato) { DesactivarId = dato.ProfesionalId; ConfirmarDesactivacion = true; }
+    private void CerrarConfirmacion() { ConfirmarDesactivacion = false; DesactivarId = null; }
+    private async Task DesactivarAsync()
+    {
+        if (Procesando || DesactivarId is not int id) return;
+        Procesando = true; Error = Aviso = null;
+        try
+        {
+            await ProfesionalesService.DesactivarAsync(id);
+            Aviso = "Profesional desactivado.";
+            CerrarConfirmacion();
+            await CargarAsync();
+        }
+        catch (Exception ex) { Logger.LogError(ex, "Error al desactivar profesional"); Error = "No se pudo desactivar el profesional."; }
+        finally { Procesando = false; }
+    }
+}

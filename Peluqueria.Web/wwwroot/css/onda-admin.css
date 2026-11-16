@@ -1,0 +1,376 @@
+﻿/* ONDA - Administración: estilos prefijados, sin alterar el sitio público. */
+.onda-admin-page {
+    padding: 3.2rem 0 6rem;
+    min-height: 70vh
+}
+
+    .onda-admin-page h1, .onda-admin-login h1 {
+        font: 400 clamp(2.6rem,5vw,4.5rem)/1.12 Georgia,serif;
+        letter-spacing: -.035em;
+        margin: .65rem 0 1rem;
+        color: var(--ink)
+    }
+
+.onda-admin-intro {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 720px;
+    margin-bottom: 2rem
+}
+
+.onda-admin-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .7rem;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem
+}
+
+    .onda-admin-nav a, .onda-admin-logout {
+        border: 1px solid var(--line);
+        border-radius: 100px;
+        background: #fffdf9;
+        padding: .65rem 1rem;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: .87rem
+    }
+
+        .onda-admin-nav a.active {
+            background: var(--terra);
+            border-color: var(--terra);
+            color: #fff
+        }
+
+    .onda-admin-nav form {
+        margin-left: auto
+    }
+
+.onda-admin-logout {
+    cursor: pointer
+}
+
+.onda-admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap
+}
+
+    .onda-admin-toolbar .onda-busqueda {
+        flex: 1;
+        min-width: min(100%,260px)
+    }
+
+.onda-admin-primary, .onda-admin-secondary, .onda-admin-danger {
+    border-radius: 999px;
+    padding: .72rem 1.15rem;
+    border: 1px solid transparent;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background .2s;
+    white-space: nowrap
+}
+
+.onda-admin-primary {
+    background: var(--terra);
+    color: #fff
+}
+
+    .onda-admin-primary:hover {
+        background: #a34e34
+    }
+
+.onda-admin-secondary {
+    background: #fffdf9;
+    color: var(--ink);
+    border-color: var(--line)
+}
+
+    .onda-admin-secondary:hover {
+        background: #f4e8de
+    }
+
+.onda-admin-danger {
+    background: #fff9f6;
+    color: #a43825;
+    border-color: #eec9bd
+}
+
+    .onda-admin-danger:hover {
+        background: #fbe4dc
+    }
+
+.onda-admin-primary:disabled, .onda-admin-secondary:disabled {
+    opacity: .6;
+    cursor: progress
+}
+
+.onda-admin-panel, .onda-admin-table-wrap, .onda-admin-home-card {
+    background: #fffdf9;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px #5c34200b
+}
+
+.onda-admin-panel {
+    padding: clamp(1.2rem,3vw,2rem);
+    margin: 1.5rem 0
+}
+
+    .onda-admin-panel h2, .onda-admin-home-card h2 {
+        font: 400 1.8rem Georgia,serif;
+        margin: 0 0 1.2rem
+    }
+
+.onda-admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem
+}
+
+.onda-admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 1rem
+}
+
+.onda-admin-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem
+}
+
+    .onda-admin-field label {
+        font-size: .88rem;
+        font-weight: 700
+    }
+
+    .onda-admin-field input:not([type=checkbox]), .onda-admin-field textarea {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #d9c6b8;
+        border-radius: 12px;
+        padding: .83rem 1rem;
+        color: var(--ink);
+        min-width: 0
+    }
+
+    .onda-admin-field textarea {
+        min-height: 100px
+    }
+
+        .onda-admin-field input.invalid, .onda-admin-field textarea.invalid {
+            border-color: #b72d18;
+            background: #fff8f6
+        }
+
+    .onda-admin-field .validation-message, .onda-admin-form .validation-errors {
+        color: #b72d18;
+        font-size: .82rem
+    }
+
+.onda-admin-span-2 {
+    grid-column: 1/-1
+}
+
+.onda-admin-check {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 600
+}
+
+.onda-admin-actions {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap
+}
+
+.onda-admin-alert, .onda-admin-success {
+    padding: .85rem 1.1rem;
+    border-radius: 12px;
+    margin: 1rem 0
+}
+
+.onda-admin-alert {
+    color: #a62d1a;
+    background: #fff0eb;
+    border: 1px solid #ecc5b9
+}
+
+.onda-admin-success {
+    color: #2f6d43;
+    background: #e9f5e9;
+    border: 1px solid #b9deba
+}
+
+.onda-admin-table-wrap {
+    overflow-x: auto;
+    margin-top: 1.5rem
+}
+
+.onda-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 730px
+}
+
+    .onda-admin-table th {
+        text-align: left;
+        font-size: .8rem;
+        color: var(--muted);
+        font-weight: 700;
+        background: #f6eee8
+    }
+
+    .onda-admin-table th, .onda-admin-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--line)
+    }
+
+    .onda-admin-table tr:last-child td {
+        border-bottom: 0
+    }
+
+    .onda-admin-table td small {
+        display: block;
+        max-width: 260px;
+        color: var(--muted);
+        margin-top: .25rem;
+        line-height: 1.4
+    }
+
+.onda-admin-row-actions {
+    white-space: nowrap
+}
+
+    .onda-admin-row-actions button {
+        font-size: .8rem;
+        padding: .55rem .8rem;
+        margin: .15rem
+    }
+
+.onda-admin-state {
+    display: inline-block;
+    border-radius: 999px;
+    padding: .35rem .65rem;
+    font-size: .75rem;
+    font-weight: 700
+}
+
+    .onda-admin-state.activo {
+        background: #e8f2e5;
+        color: #38623d
+    }
+
+    .onda-admin-state.inactivo {
+        background: #eee9e4;
+        color: #6f6259
+    }
+
+.onda-admin-empty {
+    padding: 1rem
+}
+
+.onda-admin-home-grid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 1rem
+}
+
+.onda-admin-home-card {
+    text-decoration: none;
+    color: var(--ink);
+    padding: 1.5rem;
+    display: block
+}
+
+    .onda-admin-home-card span {
+        font-size: .75rem;
+        letter-spacing: .2em;
+        color: var(--terra)
+    }
+
+    .onda-admin-home-card h2 {
+        margin: .8rem 0
+    }
+
+    .onda-admin-home-card p {
+        color: var(--muted);
+        line-height: 1.6;
+        min-height: 3.3em
+    }
+
+    .onda-admin-home-card b {
+        color: var(--terra)
+    }
+
+.onda-admin-note {
+    color: var(--muted);
+    font-size: .9rem;
+    margin-top: 1.5rem
+}
+
+.onda-admin-login {
+    padding: 5rem 0;
+    min-height: 65vh;
+    display: flex;
+    justify-content: center
+}
+
+    .onda-admin-login .onda-admin-panel {
+        width: min(100%,540px);
+        margin: 0
+    }
+
+    .onda-admin-login p {
+        color: var(--muted)
+    }
+
+    .onda-admin-login .onda-admin-form {
+        margin: 1.7rem 0
+    }
+
+.onda-admin-back {
+    color: var(--terra);
+    font-size: .9rem;
+    text-decoration: none
+}
+
+@media(max-width:760px) {
+    .onda-admin-page {
+        padding: 2rem 0 4rem
+    }
+
+    .onda-admin-form-grid, .onda-admin-home-grid {
+        grid-template-columns: 1fr
+    }
+
+    .onda-admin-nav form {
+        margin-left: 0
+    }
+
+    .onda-admin-nav a, .onda-admin-logout {
+        font-size: .8rem;
+        padding: .6rem .8rem
+    }
+
+    .onda-admin-table {
+        min-width: 640px
+    }
+
+    .onda-admin-toolbar .onda-admin-primary {
+        width: 100%
+    }
+}
