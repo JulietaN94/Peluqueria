@@ -1,3 +1,7 @@
+@using Peluqueria.Web.State
+@inject ReservaNavegacionState ReservaNavegacion
+@implements IDisposable
+
 <nav class="site-nav onda-container" aria-label="Navegación principal">
     @* Enlace HTML normal para que el CSS Isolation aplique el estilo al logo. *@
     <a class="brand" href="/" @onclick="CerrarMenu" aria-label="ONDA Peluquería, ir al inicio">
@@ -21,12 +25,25 @@
         <a href="/#galeria" @onclick="CerrarMenu">Galería</a>
         <a href="/#contacto" @onclick="CerrarMenu">Contacto</a>
         <a href="/mi-reserva" @onclick="CerrarMenu">Mi reserva</a>
-        <a class="nav-cta" href="/reservar" @onclick="CerrarMenu">Reservar turno <span aria-hidden="true">↗</span></a>
+        <a class="nav-cta" href="/reservar" @onclick="CerrarMenu">@(ReservaNavegacion.TieneReservaEnCurso ? "Continuar reserva" : "Reservar turno") <span aria-hidden="true">↗</span></a>
     </div>
 </nav>
 
 @code {
     private bool menuAbierto;
+
+    protected override void OnInitialized()
+    {
+        ReservaNavegacion.Cambio += ActualizarNavegacion;
+    }
+
+    private void ActualizarNavegacion() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        ReservaNavegacion.Cambio -= ActualizarNavegacion;
+    }
+
     private void AlternarMenu() => menuAbierto = !menuAbierto;
     private void CerrarMenu() => menuAbierto = false;
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Peluqueria.Web.Models;
 
@@ -22,22 +23,26 @@ public sealed class ReservaDatosFormModel
 }
 
 /// <summary>
-/// Comprueba que la longitud mínima no dependa de espacios al principio o al final.
+/// Comprueba que el nombre tenga al menos tres caracteres útiles y contenga
+/// exclusivamente letras Unicode (incluidas tildes y ñ) y espacios internos.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 internal sealed class NombreClienteValidoAttribute : ValidationAttribute
 {
     public NombreClienteValidoAttribute()
     {
-        ErrorMessage = "Ingresá un nombre de al menos 3 caracteres, sin contar espacios.";
+        ErrorMessage = "Ingresá un nombre de al menos 3 caracteres usando solo letras y espacios (se permiten tildes y ñ).";
     }
 
     public override bool IsValid(object? value)
     {
         // Required se encarga de los valores vacíos.
-        return value is not string nombre ||
-               string.IsNullOrWhiteSpace(nombre) ||
-               nombre.Trim().Length >= 3;
+        if (value is not string nombre || string.IsNullOrWhiteSpace(nombre))
+            return true;
+
+        var nombreLimpio = nombre.Trim();
+        return nombreLimpio.Length >= 3 &&
+               Regex.IsMatch(nombreLimpio, @"^\p{L}+(?: +\p{L}+)*$", RegexOptions.CultureInvariant);
     }
 }
 

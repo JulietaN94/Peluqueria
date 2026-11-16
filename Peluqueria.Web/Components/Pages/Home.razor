@@ -38,12 +38,18 @@
         else
         {
 
-            <div class="services-grid">@foreach (var (servicio, indice) in servicios.Select((s,i)=>(s,i))) {
-                <ServiceCard Numero="@(indice + 1)" Nombre="@servicio.Nombre" Descripcion="@servicio.Descripcion" Precio="@servicio.Precio" DuracionMinutos="@servicio.DuracionMinutos" />
-            }
-        </div>
-    }
-</div>
+            <div class="services-grid">
+                @foreach (var (servicio, indice) in servicios.Select((s, i) => (s, i)))
+                {
+                    <a class="elegir-servicio-link" href="@($"/reservar/servicio/{servicio.ServicioId}")"
+                       aria-label="@($"Reservar el servicio {servicio.Nombre}")">
+                        <ServiceCard Numero="@(indice + 1)" Nombre="@servicio.Nombre" Descripcion="@servicio.Descripcion" Precio="@servicio.Precio" DuracionMinutos="@servicio.DuracionMinutos" />
+                        <span class="elegir-servicio-cta">Elegir este servicio <span aria-hidden="true">→</span></span>
+                    </a>
+                }
+            </div>
+        }
+    </div>
 </section>
 
 <section id="nosotros" class="section about-section"><div class="onda-container about-grid"><div class="decorative-quote">“</div><div><span class="eyebrow">NUESTRA FILOSOFÍA</span><h2>La belleza está en <em>ser vos.</em></h2><p>En ONDA creemos en el cuidado personal como un momento de bienestar. Queremos que te sientas cómoda, escuchada y acompañada en cada visita.</p><p class="demo-note">Presentación de demostración para el proyecto académico.</p></div></div></section>

@@ -1,5 +1,6 @@
 
 using Peluqueria.Web.Components;
+using Peluqueria.Web.State;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 
@@ -39,6 +40,9 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(
 // ==========================================
 
 builder.Services.AddSingleton(TimeProvider.System);
+
+// Borrador temporal por circuito/usuario (State Service, Fase 7.3).
+builder.Services.AddScoped<ReservaNavegacionState>();
 
 // ==========================================
 // 4. ASP.NET CORE IDENTITY

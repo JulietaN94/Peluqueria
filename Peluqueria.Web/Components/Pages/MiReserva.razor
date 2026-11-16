@@ -4,9 +4,11 @@
 @using Peluqueria.Application.Services
 @using Peluqueria.Domain.Enums
 @using Peluqueria.Web.Components.Shared
+@using Peluqueria.Web.State
 @inject ConsultaReservaService ConsultaReservaService
 @inject TimeProvider Clock
 @inject ILogger<MiReserva> Logger
+@inject ReservaNavegacionState ReservaNavegacion
 
 <PageTitle>Mi reserva | ONDA Peluquería</PageTitle>
 
@@ -119,6 +121,18 @@
     private bool consultando;
     private bool cancelando;
     private bool confirmarCancelacion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // La navegación interna desde el paso 5 precarga el último código,
+        // sin incluirlo en la URL, el historial ni parámetros de ruta.
+        if (!string.IsNullOrWhiteSpace(ReservaNavegacion.UltimoCodigoConfirmado))
+        {
+            codigo = ReservaNavegacion.UltimoCodigoConfirmado;
+            await BuscarAsync();
+        }
+    }
+
     private void CerrarConfirmacion()
     {
         confirmarCancelacion = false;

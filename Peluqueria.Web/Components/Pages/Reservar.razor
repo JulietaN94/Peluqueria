@@ -1,4 +1,5 @@
 ﻿@page "/reservar"
+@page "/reservar/servicio/{ServicioId:int}"
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
 @using Peluqueria.Application.DTOs.Servicios
@@ -7,12 +8,15 @@
 @using Peluqueria.Application.Interfaces
 @using Peluqueria.Application.Services
 @using Peluqueria.Web.Models
+@using Peluqueria.Web.State
 @inject IServicioService ServicioService
 @inject IProfesionalService ProfesionalService
 @inject DisponibilidadService DisponibilidadService
 @inject ReservaService ReservaService
 @inject TimeProvider Clock
 @inject ILogger<Reservar> Logger
+@inject ReservaNavegacionState ReservaNavegacion
+@inject NavigationManager Navegacion
 
 <PageTitle>Reservar turno | ONDA Peluquería</PageTitle>
 
@@ -47,6 +51,10 @@
             }
             else if (paso == 1)
             {
+                @if (errorEnlaceServicio is not null)
+                {
+                    <div class="aviso error" role="alert">@errorEnlaceServicio</div>
+                }
                 <div class="etapa-titulo">
                     <span class="eyebrow">PASO 01</span>
                     <h2>¿Qué te gustaría hacerte?</h2>
@@ -230,7 +238,7 @@
                     </dl>
                     <div class="exito-acciones">
                         <a href="/" class="boton-secundario">Volver al inicio</a>
-                        <a href="/mi-reserva" class="boton-secundario">Consultar mi reserva</a>
+                        <button type="button" class="boton-secundario" @onclick="IrAMiReserva">Consultar mi reserva</button>
                         <button type="button" class="boton-primario" @onclick="NuevaReserva">Hacer otra reserva</button>
                     </div>
                     <p class="aclaracion">Guardá tu código para consultar o cancelar este turno desde «Mi reserva».</p>
@@ -257,6 +265,8 @@
 </section>
 
 @code {
+    [Parameter] public int? ServicioId { get; set; }
+
     private static readonly CultureInfo Cultura = CultureInfo.GetCultureInfo("es-AR");
     private ElementReference panelReserva;
     private bool enfocarPanel;
@@ -284,6 +294,7 @@
     private DateTime? horaElegida;
     private TurnoDto? turnoConfirmado;
     private ReservaDatosFormModel datosCliente = new();
+    private string? errorEnlaceServicio;
     private string? errorCatalogos;
     private string? errorHorarios;
     private string? errorReserva;
@@ -321,10 +332,63 @@
         {
             cargandoCatalogos = false;
         }
+
+        if (errorCatalogos is null && paso == 1)
+            await RecuperarReservaEnCursoAsync();
+    }
+
+    // Routing /reservar/servicio/{id}: precarga un servicio válido desde el Inicio.
+    // También recupera el borrador del circuito al volver a /reservar.
+    private async Task RecuperarReservaEnCursoAsync()
+    {
+        var idDeseado = ServicioId ?? ReservaNavegacion.ServicioId;
+        if (idDeseado is null) return;
+
+        var servicio = servicios.FirstOrDefault(s => s.ServicioId == idDeseado.Value);
+        if (servicio is null)
+        {
+            if (ServicioId.HasValue)
+                errorEnlaceServicio = "El servicio del enlace ya no está disponible. Elegí uno de la lista.";
+            else
+                ReservaNavegacion.Reiniciar();
+            return;
+        }
+
+        if (ReservaNavegacion.ServicioId != servicio.ServicioId)
+            ReservaNavegacion.SeleccionarServicio(servicio.ServicioId, servicio.Nombre);
+
+        servicioElegido = servicio;
+        IrAPaso(2);
+
+        if (!ReservaNavegacion.ProfesionalDefinido) return;
+        if (ReservaNavegacion.ProfesionalId is int idProfesional &&
+            !profesionales.Any(p => p.ProfesionalId == idProfesional))
+        {
+            ReservaNavegacion.SeleccionarServicio(servicio.ServicioId, servicio.Nombre);
+            return;
+        }
+
+        profesionalElegido = ReservaNavegacion.ProfesionalId;
+        var fechaRecordada = ReservaNavegacion.FechaSeleccionada;
+        var hoy = Clock.GetLocalNow().Date;
+        fechaSeleccionada = fechaRecordada.HasValue &&
+            fechaRecordada.Value >= hoy && fechaRecordada.Value <= hoy.AddDays(45)
+            ? fechaRecordada.Value : hoy.AddDays(1);
+        var horarioRecordado = ReservaNavegacion.HoraSeleccionada;
+
+        IrAPaso(3);
+        await CargarHorariosAsync(); // Revalidar contra disponibilidad real.
+        if (horarioRecordado.HasValue && horasLibres.Contains(horarioRecordado.Value))
+        {
+            ElegirHora(horarioRecordado.Value);
+            IrAPaso(4);
+        }
     }
 
     private void ElegirServicio(ServicioDto servicio)
     {
+        ReservaNavegacion.SeleccionarServicio(servicio.ServicioId, servicio.Nombre);
+        errorEnlaceServicio = null;
         servicioElegido = servicio;
         profesionalElegido = null;
         horaElegida = null;
@@ -334,6 +398,7 @@
 
     private async Task ElegirProfesionalAsync(int? id)
     {
+        ReservaNavegacion.SeleccionarProfesional(id);
         profesionalElegido = id;
         horaElegida = null;
         IrAPaso(3);
@@ -351,12 +416,14 @@
             return;
         }
         fechaSeleccionada = nuevaFecha;
+        ReservaNavegacion.SeleccionarFecha(nuevaFecha);
         await CargarHorariosAsync();
     }
 
     private async Task CargarHorariosAsync()
     {
         horaElegida = null;
+        ReservaNavegacion.LimpiarHora();
         horasLibres = Array.Empty<DateTime>();
         errorHorarios = null;
         if (servicioElegido is null) return;
@@ -386,7 +453,11 @@
         }
     }
 
-    private void ElegirHora(DateTime fechaHora) => horaElegida = fechaHora;
+    private void ElegirHora(DateTime fechaHora)
+    {
+        horaElegida = fechaHora;
+        ReservaNavegacion.SeleccionarHora(fechaHora);
+    }
 
     private async Task ConfirmarReservaAsync()
     {
@@ -409,6 +480,7 @@
                 Telefono = datosCliente.Telefono.Trim()
             };
             turnoConfirmado = await ReservaService.CrearAsync(solicitud);
+            ReservaNavegacion.ConfirmarReserva(turnoConfirmado.CodigoReserva);
             IrAPaso(5);
         }
         catch (ValidationException ex)
@@ -428,8 +500,11 @@
 
     private void LimpiarErrorReserva() => errorReserva = null;
 
+    private void IrAMiReserva() => Navegacion.NavigateTo("/mi-reserva");
+
     private void NuevaReserva()
     {
+        ReservaNavegacion.Reiniciar();
         IrAPaso(1);
         servicioElegido = null;
         profesionalElegido = null;
@@ -439,6 +514,9 @@
         errorReserva = null;
         errorHorarios = null;
         fechaSeleccionada = Clock.GetLocalNow().Date.AddDays(1);
+        // Al comenzar de nuevo, quitar el parámetro del servicio de la URL.
+        if (ServicioId.HasValue)
+            Navegacion.NavigateTo("/reservar", replace: true);
     }
 
     private static string NombrePaso(int numero) => numero switch
