@@ -47,11 +47,9 @@
     color: var(--muted)
 }
 
+/* Bootstrap controla el orden y ancho de las columnas desde mobile-first. */
 .consulta-layout {
-    display: grid;
-    grid-template-columns: minmax(0,1fr) 320px;
-    gap: 2rem;
-    align-items: start
+    align-items: flex-start;
 }
 
 .consulta-panel {
@@ -281,11 +279,7 @@
     margin-top: .55rem
 }
 
-@media(max-width:900px) {
-    .consulta-layout {
-        grid-template-columns: 1fr
-    }
-
+@media(max-width:1199.98px) {
     .consulta-panel {
         padding: 1.5rem
     }

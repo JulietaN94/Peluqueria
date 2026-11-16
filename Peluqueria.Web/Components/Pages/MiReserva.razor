@@ -20,8 +20,9 @@
         <p>Ingresá el código que recibiste al reservar. No necesitás iniciar sesión.</p>
     </header>
 
-    <div class="consulta-layout">
-        <div class="consulta-panel">
+    <div class="consulta-layout row g-4 align-items-start">
+        <div class="col-12 col-xl-8">
+            <div class="consulta-panel">
             <div class="formulario-consulta">
                 <label for="codigo-reserva">Código de reserva</label>
                 <div class="codigo-entrada">
@@ -54,6 +55,7 @@
                         <StatusBadge Estado="@reserva.Estado" />
                     </div>
                     <p class="codigo-detalle">@reserva.CodigoReserva</p>
+                    <CopiarCodigoReserva Codigo="@reserva.CodigoReserva" />
                     <dl class="detalle">
                         <div><dt>Nombre</dt><dd>@reserva.ClienteNombre</dd></div>
                         <div><dt>Servicio</dt><dd>@reserva.ServicioNombre</dd></div>
@@ -99,16 +101,19 @@
                     }
                 </section>
             }
+            </div>
         </div>
 
-        <aside class="consulta-ayuda">
+        <div class="col-12 col-xl-4">
+            <aside class="consulta-ayuda">
             <span class="eyebrow">¿NECESITÁS AYUDA?</span>
             <h2>Tu momento, a tu manera.</h2>
             <p>Encontrarás tu código en la pantalla que aparece al completar una reserva.</p>
             <p>Podés consultar un turno aunque ya haya pasado. Para cancelarlo, debe estar pendiente o confirmado y todavía no haber comenzado.</p>
             <a href="/reservar" class="enlace-reservar">Hacer otra reserva ↗</a>
             <p class="advertencia">El código es privado: cualquier persona que lo conozca podría consultar o cancelar el turno en esta versión académica.</p>
-        </aside>
+            </aside>
+        </div>
     </div>
 </section>
 

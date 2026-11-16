@@ -1,0 +1,40 @@
+/* CSS Isolation: botón de JS Interop reutilizable, respetando la paleta ONDA. */
+.copiar-codigo {
+    margin: .65rem 0 1.4rem;
+    min-width: 0;
+}
+
+.copiar-codigo-boton {
+    border: 1px solid #bb795f;
+    border-radius: 100px;
+    color: #a14d35;
+    background: #fffaf6;
+    font: 600 .9rem 'DM Sans', Arial, sans-serif;
+    padding: .75rem 1.15rem;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+    .copiar-codigo-boton:hover:not(:disabled) {
+        background: #f2e6db;
+    }
+
+    .copiar-codigo-boton:disabled {
+        opacity: .65;
+        cursor: wait;
+    }
+
+    .copiar-codigo-boton span {
+        margin-right: .3rem;
+        font-size: 1.05rem;
+    }
+
+.copiar-codigo-mensaje {
+    color: #386b43;
+    font-size: .82rem;
+    line-height: 1.45;
+}
+
+    .copiar-codigo-mensaje.es-error {
+        color: #9a3829;
+    }

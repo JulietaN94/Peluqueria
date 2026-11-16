@@ -8,6 +8,7 @@
 @using Peluqueria.Application.Interfaces
 @using Peluqueria.Application.Services
 @using Peluqueria.Web.Models
+@using Peluqueria.Web.Components.Shared
 @using Peluqueria.Web.State
 @inject IServicioService ServicioService
 @inject IProfesionalService ProfesionalService
@@ -28,8 +29,9 @@
         <p>Elegí cómo querés cuidarte. Te acompañamos en cada paso.</p>
     </div>
 
-    <div class="reserva-layout">
-        <div class="reserva-panel" tabindex="-1" @ref="panelReserva">
+    <div class="reserva-layout row g-4 align-items-start">
+        <div class="col-12 col-xl-9">
+            <div class="reserva-panel" tabindex="-1" @ref="panelReserva">
             <div class="pasos" aria-label="Progreso de la reserva">
                 @for (var i = 1; i <= 5; i++)
                 {
@@ -228,6 +230,7 @@
                     <h2>¡Te esperamos en ONDA!</h2>
                     <p>Guardá este código para identificar tu turno.</p>
                     <div class="codigo-reserva"><small>CÓDIGO DE RESERVA</small><strong>@turnoConfirmado.CodigoReserva</strong></div>
+                    <CopiarCodigoReserva Codigo="@turnoConfirmado.CodigoReserva" />
                     <dl class="detalle-confirmado">
                         <div><dt>Servicio</dt><dd>@turnoConfirmado.ServicioNombre</dd></div>
                         <div><dt>Profesional</dt><dd>@turnoConfirmado.ProfesionalNombre</dd></div>
@@ -244,11 +247,13 @@
                     <p class="aclaracion">Guardá tu código para consultar o cancelar este turno desde «Mi reserva».</p>
                 </div>
             }
+            </div>
         </div>
 
         @if (paso < 5)
         {
-            <aside class="reserva-resumen" aria-label="Resumen de tu selección">
+            <div class="col-12 col-xl-3 reserva-resumen-col">
+                <aside class="reserva-resumen" aria-label="Resumen de tu selección">
                 <span class="eyebrow">TU ELECCIÓN</span>
                 <h3>Un momento para vos.</h3>
                 <dl>
@@ -259,7 +264,8 @@
                 </dl>
                 <div class="total"><span>Precio del servicio</span><strong>@(servicioElegido is null ? "—" : Dinero(servicioElegido.Precio))</strong></div>
                 <p>Los horarios dependen de la disponibilidad real. La confirmación vuelve a comprobar que el turno siga libre.</p>
-            </aside>
+                </aside>
+            </div>
         }
     </div>
 </section>

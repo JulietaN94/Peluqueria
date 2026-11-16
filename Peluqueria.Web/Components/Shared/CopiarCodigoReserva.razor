@@ -1,0 +1,96 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="copiar-codigo d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+    <button type="button" class="copiar-codigo-boton" @onclick="CopiarAsync"
+            disabled="@(copiando || string.IsNullOrWhiteSpace(Codigo))"
+            aria-label="Copiar código de reserva al portapapeles">
+        <span aria-hidden="true">▢</span>
+        @(copiando ? "Copiando…" : "Copiar código")
+    </button>
+    <span class="copiar-codigo-mensaje @(huboError ? "es-error" : "")"
+          role="status" aria-live="polite">@mensaje</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Codigo { get; set; } = string.Empty;
+
+    private IJSObjectReference? modulo;
+    private string? codigoAnterior;
+    private string mensaje = string.Empty;
+    private bool copiando;
+    private bool huboError;
+
+    protected override void OnParametersSet()
+    {
+        // Una nueva consulta no debe conservar el mensaje «Copiado» de otro turno.
+        if (!string.Equals(codigoAnterior, Codigo, StringComparison.Ordinal))
+        {
+            codigoAnterior = Codigo;
+            mensaje = string.Empty;
+            huboError = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            // Módulo ES6 cargado solamente cuando este componente se muestra.
+            modulo = await JS.InvokeAsync<IJSObjectReference>("import", "./js/reservas.js");
+        }
+        catch (JSException)
+        {
+            // Si falla la carga, el botón ofrecerá un mensaje y podrá reintentar.
+        }
+        catch (JSDisconnectedException)
+        {
+            // La página se cerró antes de terminar la importación.
+        }
+    }
+
+    private async Task CopiarAsync()
+    {
+        if (copiando || string.IsNullOrWhiteSpace(Codigo)) return;
+
+        copiando = true;
+        mensaje = string.Empty;
+        huboError = false;
+        try
+        {
+            modulo ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/reservas.js");
+            await modulo.InvokeVoidAsync("copiarCodigo", Codigo);
+            mensaje = "Código copiado al portapapeles.";
+        }
+        catch (JSException)
+        {
+            huboError = true;
+            mensaje = "No se pudo copiar automáticamente. Seleccioná el código y copialo manualmente.";
+        }
+        catch (JSDisconnectedException)
+        {
+            huboError = true;
+            mensaje = "Se perdió la conexión. Volvé a intentar cuando se restablezca.";
+        }
+        finally
+        {
+            copiando = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (modulo is null) return;
+        try
+        {
+            await modulo.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // Es normal al navegar/cerrar la pestaña de Blazor Server.
+        }
+    }
+}
