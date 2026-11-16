@@ -1,5 +1,27 @@
-﻿<h3>StatusBadge</h3>
+﻿@using Peluqueria.Domain.Enums
+
+<span class="onda-estado @ClaseEstado">@TextoEstado</span>
 
 @code {
+    [Parameter] public EstadoTurno Estado { get; set; }
 
+    private string ClaseEstado => Estado switch
+    {
+        EstadoTurno.Pendiente => "pendiente",
+        EstadoTurno.Confirmado => "confirmado",
+        EstadoTurno.Cancelado => "cancelado",
+        EstadoTurno.Finalizado => "finalizado",
+        EstadoTurno.Ausente => "ausente",
+        _ => "desconocido"
+    };
+
+    private string TextoEstado => Estado switch
+    {
+        EstadoTurno.Pendiente => "Pendiente",
+        EstadoTurno.Confirmado => "Confirmado",
+        EstadoTurno.Cancelado => "Cancelado",
+        EstadoTurno.Finalizado => "Finalizado",
+        EstadoTurno.Ausente => "Ausente",
+        _ => "Estado desconocido"
+    };
 }

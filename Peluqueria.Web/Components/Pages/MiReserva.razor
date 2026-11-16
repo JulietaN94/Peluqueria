@@ -3,6 +3,7 @@
 @using Peluqueria.Application.DTOs.Turnos
 @using Peluqueria.Application.Services
 @using Peluqueria.Domain.Enums
+@using Peluqueria.Web.Components.Shared
 @inject ConsultaReservaService ConsultaReservaService
 @inject TimeProvider Clock
 @inject ILogger<MiReserva> Logger
@@ -48,9 +49,7 @@
                             <span class="eyebrow">DETALLE DE TU TURNO</span>
                             <h2>Un momento para vos.</h2>
                         </div>
-                        <span class="estado @(reserva.Estado == EstadoTurno.Cancelado ? "cancelado" : "")">
-                            @TextoEstado(reserva.Estado)
-                        </span>
+                        <StatusBadge Estado="@reserva.Estado" />
                     </div>
                     <p class="codigo-detalle">@reserva.CodigoReserva</p>
                     <dl class="detalle">
@@ -78,19 +77,14 @@
                         }
                         else
                         {
-                            <div class="confirmacion" role="group" aria-label="Confirmar cancelación">
-                                <p>¿Querés cancelar este turno? Esta acción no se puede deshacer desde la web.</p>
-                                <div class="acciones-confirmacion">
-                                    <button type="button" class="accion-peligro" disabled="@cancelando"
-                                            @onclick="CancelarAsync">
-                                        @(cancelando ? "Cancelando…" : "Sí, cancelar reserva")
-                                    </button>
-                                    <button type="button" class="accion-secundaria" disabled="@cancelando"
-                                            @onclick="() => confirmarCancelacion = false">
-                                        Conservar turno
-                                    </button>
-                                </div>
-                            </div>
+                            <ConfirmDialog Abierto="@confirmarCancelacion"
+                                           Procesando="@cancelando"
+                                           Titulo="Confirmar cancelación"
+                                           Mensaje="¿Querés cancelar este turno? Esta acción no se puede deshacer desde la web."
+                                           TextoConfirmar="Sí, cancelar reserva"
+                                           TextoCancelar="Conservar turno"
+                                           OnConfirmar="CancelarAsync"
+                                           OnCancelar="CerrarConfirmacion" />
                         }
                     }
                     else if (reserva.Estado == EstadoTurno.Cancelado)
@@ -125,7 +119,10 @@
     private bool consultando;
     private bool cancelando;
     private bool confirmarCancelacion;
-
+    private void CerrarConfirmacion()
+    {
+        confirmarCancelacion = false;
+    }
     private bool SePuedeCancelar => reserva is not null &&
         (reserva.Estado == EstadoTurno.Pendiente || reserva.Estado == EstadoTurno.Confirmado) &&
         reserva.FechaHoraInicio > Clock.GetLocalNow().DateTime;

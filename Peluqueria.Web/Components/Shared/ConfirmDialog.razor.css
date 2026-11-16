@@ -1,0 +1,55 @@
+.onda-confirmacion {
+    border: 1px solid #e9d8ca;
+    background: #f8eee5;
+    border-radius: 15px;
+    padding: 1.2rem;
+    margin-top: 1rem;
+}
+
+    .onda-confirmacion h3 {
+        font: 400 1.4rem Georgia, serif;
+        margin: 0 0 .6rem;
+        color: #3b302c;
+    }
+
+    .onda-confirmacion p {
+        color: #775d50;
+        line-height: 1.55;
+        margin: 0 0 1rem;
+    }
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .7rem;
+}
+
+    .acciones button {
+        border-radius: 999px;
+        padding: .8rem 1.15rem;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+        .acciones button:focus-visible {
+            outline: 2px solid #3b302c;
+            outline-offset: 2px;
+        }
+
+        .acciones button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+.accion-peligro {
+    background: #a43c32;
+    color: #fff;
+    border: 1px solid #a43c32;
+}
+
+.accion-cancelar {
+    background: #fff;
+    color: #704637;
+    border: 1px solid #e2c7b7;
+}

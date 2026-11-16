@@ -1,5 +1,26 @@
-﻿<h3>SearchBox</h3>
+﻿@* Componente reutilizable de búsqueda, compatible con @bind-Value. *@
+<div class="onda-busqueda">
+    <label for="@IdFinal">@Etiqueta</label>
+    <input id="@IdFinal"
+           type="search"
+           value="@Value"
+           @oninput="AlEscribirAsync"
+           placeholder="@Placeholder"
+           autocomplete="off"
+           disabled="@Deshabilitado" />
+</div>
 
 @code {
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Etiqueta { get; set; } = "Buscar";
+    [Parameter] public string Placeholder { get; set; } = "Escribí para buscar...";
+    [Parameter] public bool Deshabilitado { get; set; }
+    [Parameter] public string? InputId { get; set; }
 
+    private readonly string idGenerado = $"onda-busqueda-{Guid.NewGuid():N}";
+    private string IdFinal => string.IsNullOrWhiteSpace(InputId) ? idGenerado : InputId;
+
+    private Task AlEscribirAsync(ChangeEventArgs e) =>
+        ValueChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);
 }

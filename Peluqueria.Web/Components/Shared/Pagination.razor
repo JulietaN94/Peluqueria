@@ -1,5 +1,28 @@
-﻿<h3>Pagination</h3>
+﻿@* Paginación compartida: no modifica listas por sí sola; notifica la página elegida. *@
+<nav class="onda-paginacion" aria-label="Paginación de resultados">
+    <span class="resumen">Página @PaginaVisible de @TotalPaginas</span>
+    <div class="controles">
+        <button type="button" disabled="@(PaginaVisible <= 1)" @onclick="AnteriorAsync">
+            Anterior
+        </button>
+        <span class="numero" aria-current="page">@PaginaVisible</span>
+        <button type="button" disabled="@(PaginaVisible >= TotalPaginas)" @onclick="SiguienteAsync">
+            Siguiente
+        </button>
+    </div>
+</nav>
 
 @code {
+    [Parameter] public int PaginaActual { get; set; } = 1;
+    [Parameter] public EventCallback<int> PaginaActualChanged { get; set; }
+    [Parameter] public int TotalRegistros { get; set; }
+    [Parameter] public int TamanoPagina { get; set; } = 10;
 
+    private int TotalPaginas => Math.Max(1,
+        (int)Math.Ceiling(Math.Max(0, TotalRegistros) / (double)Math.Max(1, TamanoPagina)));
+    private int PaginaVisible => Math.Clamp(PaginaActual, 1, TotalPaginas);
+
+    private Task AnteriorAsync() => PaginaActualChanged.InvokeAsync(PaginaVisible - 1);
+    private Task SiguienteAsync() => PaginaActualChanged.InvokeAsync(PaginaVisible + 1);
 }
+

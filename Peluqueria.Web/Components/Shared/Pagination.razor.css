@@ -1,0 +1,55 @@
+/* CSS for Pagination component */
+.onda-paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.resumen {
+    color: #775d50;
+    font-size: .88rem;
+}
+
+.controles {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+    .controles button {
+        border: 1px solid #e2c7b7;
+        background: #fffaf6;
+        color: #a95539;
+        border-radius: 999px;
+        padding: .65rem 1rem;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .controles button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .controles button:not(:disabled):hover {
+            background: #f4e8de;
+        }
+
+        .controles button:focus-visible {
+            outline: 2px solid #c26244;
+            outline-offset: 2px;
+        }
+
+.numero {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.4rem;
+    min-height: 2.4rem;
+    border-radius: 50%;
+    background: #c26244;
+    color: #fff;
+    font-weight: 700;
+}

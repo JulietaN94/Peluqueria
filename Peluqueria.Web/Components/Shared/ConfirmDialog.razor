@@ -1,5 +1,30 @@
-﻿<h3>ConfirmDialog</h3>
+﻿@* Confirmación reutilizable en línea; no simula ser un modal bloqueante. *@
+@if (Abierto)
+{
+    <section class="onda-confirmacion" role="group" aria-label="@Titulo">
+        <h3>@Titulo</h3>
+        <p>@Mensaje</p>
+        <div class="acciones">
+            <button type="button" class="accion-peligro" disabled="@Procesando" @onclick="ConfirmarAsync">
+                @(Procesando ? "Procesando..." : TextoConfirmar)
+            </button>
+            <button type="button" class="accion-cancelar" disabled="@Procesando" @onclick="CancelarAsync">
+                @TextoCancelar
+            </button>
+        </div>
+    </section>
+}
 
 @code {
+    [Parameter] public bool Abierto { get; set; }
+    [Parameter] public bool Procesando { get; set; }
+    [Parameter] public string Titulo { get; set; } = "Confirmar acción";
+    [Parameter] public string Mensaje { get; set; } = "¿Querés continuar?";
+    [Parameter] public string TextoConfirmar { get; set; } = "Confirmar";
+    [Parameter] public string TextoCancelar { get; set; } = "Volver";
+    [Parameter] public EventCallback OnConfirmar { get; set; }
+    [Parameter] public EventCallback OnCancelar { get; set; }
 
+    private Task ConfirmarAsync() => OnConfirmar.InvokeAsync();
+    private Task CancelarAsync() => OnCancelar.InvokeAsync();
 }

@@ -1,0 +1,40 @@
+/* CSS for StatusBadge component */
+.onda-estado {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: .4rem .78rem;
+    font-size: .82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pendiente {
+    color: #805512;
+    background: #fff0cf;
+}
+
+.confirmado {
+    color: #1e6b51;
+    background: #e0f1e9;
+}
+
+.cancelado {
+    color: #9e3c36;
+    background: #fae5e2;
+}
+
+.finalizado {
+    color: #4a657a;
+    background: #e5edf4;
+}
+
+.ausente {
+    color: #6b5479;
+    background: #eee5f2;
+}
+
+.desconocido {
+    color: #505050;
+    background: #ececec;
+}
