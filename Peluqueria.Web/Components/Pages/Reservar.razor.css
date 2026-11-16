@@ -236,7 +236,7 @@
         color: var(--ink)
     }
 
-    .campo-fecha input, .campo input {
+    .campo-fecha input, .campo ::deep input {
         width: 100%;
         background: #fff;
         border: 1px solid #d9c7bb;
@@ -321,9 +321,42 @@
     gap: .6rem
 }
 
-    .campo input:focus, .campo-fecha input:focus {
+    .campo ::deep input:focus, .campo-fecha input:focus {
         outline: 2px solid #c26244;
         outline-offset: 2px
+    }
+
+    /* Validaciones de Blazor (los InputText y mensajes se generan en componentes hijos). */
+    .campo ::deep input.invalid {
+        border-color: #b24b36;
+        background: #fff8f5;
+        box-shadow: 0 0 0 1px #b24b3633;
+    }
+
+    .campo ::deep input.modified.valid:not(:focus) {
+        border-color: #8eaa89;
+    }
+
+.campo-error ::deep .validation-message {
+    color: #a23e2b;
+    font-size: .8rem;
+    line-height: 1.5;
+}
+
+/* ValidationSummary solo genera la lista cuando hay errores. */
+.resumen-validacion ::deep .validation-errors {
+    background: #fff0e9;
+    color: #923923;
+    border: 1px solid #eec8b5;
+    border-radius: 12px;
+    padding: .85rem 1rem .85rem 2rem;
+    margin: 0 0 1.3rem;
+    line-height: 1.55;
+    font-size: .85rem;
+}
+
+    .resumen-validacion ::deep .validation-errors li + li {
+        margin-top: .3rem;
     }
 
 .controles-inferiores {

@@ -6,6 +6,7 @@
 @using Peluqueria.Application.DTOs.Turnos
 @using Peluqueria.Application.Interfaces
 @using Peluqueria.Application.Services
+@using Peluqueria.Web.Models
 @inject IServicioService ServicioService
 @inject IProfesionalService ProfesionalService
 @inject DisponibilidadService DisponibilidadService
@@ -172,30 +173,44 @@
                     <h2>Contanos quién viene.</h2>
                     <p>No necesitás crear una cuenta para reservar.</p>
                 </div>
-                <div class="datos-formulario">
-                    <div class="campo">
-                        <label for="nombre-cliente">Nombre y apellido *</label>
-                        <input id="nombre-cliente" type="text" @bind="nombreCompleto" @bind:event="oninput"
-                               maxlength="150" autocomplete="name" placeholder="Por ejemplo, Ana García" />
+                <EditForm Model="@datosCliente" OnValidSubmit="ConfirmarReservaAsync"
+                          OnInvalidSubmit="LimpiarErrorReserva" class="formulario-reserva">
+                    <DataAnnotationsValidator />
+                    <div class="resumen-validacion" aria-live="polite">
+                        <ValidationSummary />
                     </div>
-                    <div class="campo">
-                        <label for="telefono-cliente">Teléfono de contacto *</label>
-                        <input id="telefono-cliente" type="tel" @bind="telefono" @bind:event="oninput"
-                               maxlength="30" autocomplete="tel" placeholder="Por ejemplo, 11 5555 1234" />
+                    <div class="datos-formulario">
+                        <div class="campo">
+                            <label for="nombre-cliente">Nombre y apellido *</label>
+                            <InputText id="nombre-cliente" type="text" @bind-Value="datosCliente.NombreCompleto"
+                                       maxlength="150" autocomplete="name" placeholder="Por ejemplo, Ana García"
+                                       aria-describedby="nombre-cliente-error" />
+                            <div id="nombre-cliente-error" class="campo-error" aria-live="polite">
+                                <ValidationMessage For="@(() => datosCliente.NombreCompleto)" />
+                            </div>
+                        </div>
+                        <div class="campo">
+                            <label for="telefono-cliente">Teléfono de contacto *</label>
+                            <InputText id="telefono-cliente" type="tel" @bind-Value="datosCliente.Telefono"
+                                       maxlength="30" autocomplete="tel" placeholder="Por ejemplo, 11 5555 1234"
+                                       aria-describedby="telefono-cliente-error" />
+                            <div id="telefono-cliente-error" class="campo-error" aria-live="polite">
+                                <ValidationMessage For="@(() => datosCliente.Telefono)" />
+                            </div>
+                        </div>
+                        <p class="aclaracion">Estos datos se utilizarán para identificar la reserva. Esta versión académica no envía notificaciones.</p>
                     </div>
-                    <p class="aclaracion">Estos datos se utilizarán para identificar la reserva. Esta versión académica no envía notificaciones.</p>
-                </div>
-                @if (errorReserva is not null)
-                {
-                    <div class="aviso error" role="alert">@errorReserva</div>
-                }
-                <div class="controles-inferiores">
-                    <button type="button" class="boton-texto" disabled="@enviando" @onclick="() => IrAPaso(3)">← Volver</button>
-                    <button type="button" class="boton-primario" disabled="@enviando"
-                            @onclick="ConfirmarReservaAsync">
-                        @(enviando ? "Guardando..." : "Confirmar reserva →")
-                    </button>
-                </div>
+                    @if (errorReserva is not null)
+                    {
+                        <div class="aviso error" role="alert">@errorReserva</div>
+                    }
+                    <div class="controles-inferiores">
+                        <button type="button" class="boton-texto" disabled="@enviando" @onclick="() => IrAPaso(3)">← Volver</button>
+                        <button type="submit" class="boton-primario" disabled="@enviando">
+                            @(enviando ? "Guardando..." : "Confirmar reserva →")
+                        </button>
+                    </div>
+                </EditForm>
             }
             else if (paso == 5 && turnoConfirmado is not null)
             {
@@ -268,8 +283,7 @@
     private DateTime fechaSeleccionada;
     private DateTime? horaElegida;
     private TurnoDto? turnoConfirmado;
-    private string nombreCompleto = string.Empty;
-    private string telefono = string.Empty;
+    private ReservaDatosFormModel datosCliente = new();
     private string? errorCatalogos;
     private string? errorHorarios;
     private string? errorReserva;
@@ -383,16 +397,6 @@
             errorReserva = "Faltan datos de la selección. Volvé al paso anterior.";
             return;
         }
-        if (string.IsNullOrWhiteSpace(nombreCompleto) || nombreCompleto.Trim().Length < 3)
-        {
-            errorReserva = "Ingresá tu nombre y apellido.";
-            return;
-        }
-        if (string.IsNullOrWhiteSpace(telefono) || telefono.Trim().Length < 6)
-        {
-            errorReserva = "Ingresá un teléfono de contacto válido.";
-            return;
-        }
         enviando = true;
         try
         {
@@ -401,8 +405,8 @@
                 ServicioId = servicioElegido.ServicioId,
                 ProfesionalId = profesionalElegido,
                 FechaHoraInicio = horaElegida.Value,
-                NombreCompleto = nombreCompleto.Trim(),
-                Telefono = telefono.Trim()
+                NombreCompleto = datosCliente.NombreCompleto.Trim(),
+                Telefono = datosCliente.Telefono.Trim()
             };
             turnoConfirmado = await ReservaService.CrearAsync(solicitud);
             IrAPaso(5);
@@ -422,6 +426,8 @@
         }
     }
 
+    private void LimpiarErrorReserva() => errorReserva = null;
+
     private void NuevaReserva()
     {
         IrAPaso(1);
@@ -429,8 +435,7 @@
         profesionalElegido = null;
         horaElegida = null;
         turnoConfirmado = null;
-        nombreCompleto = string.Empty;
-        telefono = string.Empty;
+        datosCliente = new ReservaDatosFormModel();
         errorReserva = null;
         errorHorarios = null;
         fechaSeleccionada = Clock.GetLocalNow().Date.AddDays(1);
