@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Peluqueria.Domain\Peluqueria.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
 </Project>
